@@ -3,18 +3,18 @@
  */
 package be.vbgn.gradle.buildaspects;
 
+import be.vbgn.gradle.buildaspects.aspect.Aspect;
+import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
+import be.vbgn.gradle.buildaspects.dsl.BuildAspects;
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.internal.plugins.DslObject;
 
-/**
- * A simple 'hello world' plugin.
- */
-public class BuildAspectsPlugin implements Plugin<Project> {
+public class BuildAspectsPlugin implements Plugin<Settings> {
 
-    public void apply(Project project) {
-        // Register a task
-        project.getTasks().register("greeting", task -> {
-            task.doLast(s -> System.out.println("Hello from plugin 'be.vbgn.gradle.buildaspects.greeting'"));
-        });
+    @Override
+    public void apply(Settings settings) {
+        BuildAspects buildAspects = new DslObject(settings).getExtensions().create("buildAspects", BuildAspects.class);
     }
 }
