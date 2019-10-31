@@ -3,10 +3,7 @@
  */
 package be.vbgn.gradle.buildaspects;
 
-import be.vbgn.gradle.buildaspects.aspect.Aspect;
-import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
 import be.vbgn.gradle.buildaspects.dsl.BuildAspects;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.plugins.DslObject;
@@ -15,6 +12,7 @@ public class BuildAspectsPlugin implements Plugin<Settings> {
 
     @Override
     public void apply(Settings settings) {
-        BuildAspects buildAspects = new DslObject(settings).getExtensions().create("buildAspects", BuildAspects.class);
+        BuildAspects buildAspects = new DslObject(settings).getExtensions()
+                .create("buildAspects", BuildAspects.class, settings);
     }
 }
