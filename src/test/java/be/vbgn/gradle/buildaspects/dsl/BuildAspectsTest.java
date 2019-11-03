@@ -32,12 +32,13 @@ public class BuildAspectsTest {
                 n -> new ComponentProjectFactory(settings, n));
 
         buildAspects.aspects(aspects -> {
-            aspects.create("systemVersion", String.class)
-                    .add("1.0")
-                    .add("2.0");
-            aspects.create("communityEdition", Boolean.class)
-                    .add(true)
-                    .add(false);
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+            aspects.create("communityEdition", Boolean.class, aspect -> {
+                aspect.add(true);
+                aspect.add(false);
+            });
         });
 
         buildAspects.projects(projects -> {
@@ -67,7 +68,7 @@ public class BuildAspectsTest {
         });
 
         buildAspects.aspects(aspects -> {
-            aspects.create("bla", String.class);
+            aspects.create("bla", String.class, aspect -> {});
         });
     }
 
@@ -83,12 +84,13 @@ public class BuildAspectsTest {
                 +"-"+(((boolean)desc.getComponent().getProperty("communityEdition"))?"community":"enterprise"));
 
         buildAspects.aspects(aspects -> {
-            aspects.create("systemVersion", String.class)
-                    .add("1.0")
-                    .add("2.0");
-            aspects.create("communityEdition", Boolean.class)
-                    .add(true)
-                    .add(false);
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+            aspects.create("communityEdition", Boolean.class, aspect -> {
+                aspect.add(true);
+                aspect.add(false);
+            });
         });
 
         buildAspects.projects(projects -> {

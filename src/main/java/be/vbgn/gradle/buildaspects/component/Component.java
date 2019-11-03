@@ -1,5 +1,6 @@
-package be.vbgn.gradle.buildaspects.aspect;
+package be.vbgn.gradle.buildaspects.component;
 
+import be.vbgn.gradle.buildaspects.aspect.Property;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +22,8 @@ public class Component {
 
     @Nullable
     public Object getProperty(String name) {
-        for(Property<?> property: properties) {
-            if(property.getName().equals(name)) {
+        for (Property<?> property : properties) {
+            if (property.getName().equals(name)) {
                 return property.getValue();
             }
         }

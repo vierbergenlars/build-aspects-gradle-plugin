@@ -3,7 +3,7 @@ package be.vbgn.gradle.buildaspects.project;
 import static org.junit.Assert.assertEquals;
 
 import be.vbgn.gradle.buildaspects.TestUtil;
-import be.vbgn.gradle.buildaspects.aspect.Component;
+import be.vbgn.gradle.buildaspects.component.Component;
 import java.util.Collections;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;

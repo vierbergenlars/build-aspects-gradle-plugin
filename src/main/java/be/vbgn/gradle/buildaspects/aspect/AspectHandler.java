@@ -16,11 +16,12 @@ public class AspectHandler {
 
     private EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
 
-    public <T> Aspect<T> create(String name, Class<T> type) {
+    public <T> Aspect<T> create(String name, Class<T> type, Action<WritableAspect<T>> configure) {
         if (!aspectNames.add(name)) {
             throw new IllegalArgumentException("Duplicate aspect with name " + name);
         }
-        Aspect<T> aspect = new Aspect<T>(name);
+        WritableAspect<T> aspect = new WritableAspectImpl<T>(name);
+        configure.execute(aspect);
         aspects.add(aspect);
         addAspectDispatcher.fire(aspect);
         return aspect;
@@ -33,14 +34,4 @@ public class AspectHandler {
     public void aspectAdded(Action<Aspect<?>> listener) {
         addAspectDispatcher.addListener(listener);
     }
-
-    public Collection<Component> getComponents() {
-        ComponentBuilder builder = new ComponentBuilder();
-        for (Aspect<?> aspect : getAspects()) {
-            builder = builder.addAspect(aspect);
-        }
-
-        return builder.build();
-    }
-
 }

@@ -1,14 +1,14 @@
 package be.vbgn.gradle.buildaspects.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.aspect.Component;
+import be.vbgn.gradle.buildaspects.component.Component;
+import be.vbgn.gradle.buildaspects.component.ComponentBuilder;
 import be.vbgn.gradle.buildaspects.internal.OnetimeFactory;
 import be.vbgn.gradle.buildaspects.project.ComponentProjectDescriptor;
 import be.vbgn.gradle.buildaspects.project.ComponentProjectFactory;
 import be.vbgn.gradle.buildaspects.project.DefaultComponentProjectNamer;
 import be.vbgn.gradle.buildaspects.project.ProjectHandler;
 import groovy.lang.Closure;
-import java.util.Set;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.gradle.api.Action;
@@ -34,19 +34,22 @@ public class BuildAspects {
         );
     }
 
-    BuildAspects(AspectHandler aspectHandler, ProjectHandler projectHandler, Function<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectFactoryFactory) {
+    BuildAspects(AspectHandler aspectHandler, ProjectHandler projectHandler,
+            Function<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectFactoryFactory) {
         this.aspectHandler = aspectHandler;
         this.projectHandler = projectHandler;
         componentProjectBuilderOnetimeFactory = new OnetimeFactory<>(componentProjectFactoryFactory);
         componentProjectBuilderOnetimeFactory.setSource(new DefaultComponentProjectNamer());
+        ComponentBuilder componentBuilder = new ComponentBuilder();
 
+        aspectHandler.aspectAdded(componentBuilder::addAspect);
         aspectHandler.aspectAdded(a -> {
             if (!projectHandler.getProjects().isEmpty()) {
                 throw new IllegalStateException("You can not modify aspects after projects have been registered.");
             }
         });
         projectHandler.projectAdded(projectDescriptor -> {
-            for (Component component : aspectHandler.getComponents()) {
+            for (Component component : componentBuilder.getComponents()) {
                 componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component);
             }
         });
