@@ -1,12 +1,15 @@
 package be.vbgn.gradle.buildaspects.aspect;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 public class AspectHandlerTest {
@@ -70,6 +73,20 @@ public class AspectHandlerTest {
         AspectHandler handler = new AspectHandler();
         handler.create("test1", String.class);
         handler.create("test1", String.class);
+    }
+
+    @Test
+    public void createAspectFiresListener() {
+        AspectHandler handler = new AspectHandler();
+        AtomicBoolean handlerFired = new AtomicBoolean(false);
+
+        handler.aspectAdded(a -> handlerFired.set(true));
+
+        assertFalse(handlerFired.get());
+
+        handler.create("aspect", String.class);
+
+        assertTrue(handlerFired.get());
     }
 
 }

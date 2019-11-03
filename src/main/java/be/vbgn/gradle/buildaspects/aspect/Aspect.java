@@ -31,8 +31,9 @@ public class Aspect<T> implements Named {
         return Collections.unmodifiableCollection(options);
     }
 
-    public void add(T option) {
+    public Aspect<T> add(T option) {
         options.add(option);
+        return this;
     }
 
     public Collection<Property<T>> getProperties() {

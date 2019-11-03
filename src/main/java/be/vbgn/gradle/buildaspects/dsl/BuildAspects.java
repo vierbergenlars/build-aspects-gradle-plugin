@@ -3,45 +3,45 @@ package be.vbgn.gradle.buildaspects.dsl;
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
 import be.vbgn.gradle.buildaspects.aspect.Component;
 import be.vbgn.gradle.buildaspects.internal.OnetimeFactory;
-import be.vbgn.gradle.buildaspects.project.ComponentProjectFactory;
 import be.vbgn.gradle.buildaspects.project.ComponentProjectDescriptor;
+import be.vbgn.gradle.buildaspects.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.project.DefaultComponentProjectNamer;
 import be.vbgn.gradle.buildaspects.project.ProjectHandler;
 import groovy.lang.Closure;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.function.Function;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
+import org.gradle.api.NonNullApi;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.util.ConfigureUtil;
 
+@NonNullApi
 public class BuildAspects {
 
-    private static class DefaultComponentProjectNamer implements Namer<ComponentProjectDescriptor> {
-
-        @Override
-        public String determineName(ComponentProjectDescriptor object) {
-            String parentName = object.getParentProjectDescriptor().getName();
-            String propertiesName = object.getComponent().getProperties().stream()
-                    .map(p -> p.getName() + "-" + p.getValue()).collect(
-                            Collectors.joining("-"));
-            return parentName + "-" + propertiesName;
-        }
-    }
-
-    private AspectHandler aspectHandler;
-    private ProjectHandler projectHandler;
-    private Namer<ComponentProjectDescriptor> projectNamer = new DefaultComponentProjectNamer();
-    private OnetimeFactory<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectBuilderOnetimeFactory;
+    private final AspectHandler aspectHandler;
+    private final ProjectHandler projectHandler;
+    private final OnetimeFactory<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectBuilderOnetimeFactory;
 
     @Inject
     public BuildAspects(ObjectFactory objectFactory, Settings settings) {
-        aspectHandler = objectFactory.newInstance(AspectHandler.class);
-        projectHandler = objectFactory.newInstance(ProjectHandler.class, settings);
-        componentProjectBuilderOnetimeFactory = new OnetimeFactory<>(namer -> new ComponentProjectFactory(settings, namer));
+        this(
+                objectFactory.newInstance(AspectHandler.class),
+                objectFactory.newInstance(ProjectHandler.class, settings),
+                namer -> new ComponentProjectFactory(settings, namer)
+        );
+    }
+
+    BuildAspects(AspectHandler aspectHandler, ProjectHandler projectHandler, Function<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectFactoryFactory) {
+        this.aspectHandler = aspectHandler;
+        this.projectHandler = projectHandler;
+        componentProjectBuilderOnetimeFactory = new OnetimeFactory<>(componentProjectFactoryFactory);
+        componentProjectBuilderOnetimeFactory.setSource(new DefaultComponentProjectNamer());
 
         aspectHandler.aspectAdded(a -> {
-            if(!projectHandler.getProjects().isEmpty()) {
+            if (!projectHandler.getProjects().isEmpty()) {
                 throw new IllegalStateException("You can not modify aspects after projects have been registered.");
             }
         });
@@ -50,6 +50,7 @@ public class BuildAspects {
                 componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component);
             }
         });
+
     }
 
     public AspectHandler getAspects() {
