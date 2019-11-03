@@ -37,9 +37,9 @@ public class Aspect<T> implements Named {
     }
 
     public Collection<Property<T>> getProperties() {
-        return getOptions().stream()
+        return Collections.unmodifiableList(getOptions().stream()
                 .map(o -> new Property<T>(name, o))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList()));
     }
 
 }

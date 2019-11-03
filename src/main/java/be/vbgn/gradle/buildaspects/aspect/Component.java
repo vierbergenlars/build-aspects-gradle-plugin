@@ -30,9 +30,9 @@ public class Component {
     }
 
     public Map<String, ?> toMap() {
-        return getProperties()
+        return Collections.unmodifiableMap(getProperties()
                 .stream()
-                .collect(Collectors.toUnmodifiableMap(Property::getName, Property::getValue));
+                .collect(Collectors.toMap(Property::getName, Property::getValue)));
     }
 
     Component withProperty(Property<?> property) {

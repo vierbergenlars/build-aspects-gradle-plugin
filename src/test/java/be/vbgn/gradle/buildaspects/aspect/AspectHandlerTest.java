@@ -40,29 +40,29 @@ public class AspectHandlerTest {
         assertEquals(6, components.size());
         List<Component> componentsList = new ArrayList<>(components);
 
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "1.0");
             put("community", true);
         }}, componentsList.get(0).toMap());
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "1.0");
             put("community", false);
         }}, componentsList.get(1).toMap());
 
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "1.2");
             put("community", true);
         }}, componentsList.get(2).toMap());
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "1.2");
             put("community", false);
         }}, componentsList.get(3).toMap());
 
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "2.0");
             put("community", true);
         }}, componentsList.get(4).toMap());
-        assertEquals(new HashMap<>() {{
+        assertEquals(new HashMap<Object, Object>() {{
             put("systemVersion", "2.0");
             put("community", false);
         }}, componentsList.get(5).toMap());
