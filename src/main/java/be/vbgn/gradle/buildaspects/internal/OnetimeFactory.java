@@ -2,16 +2,21 @@ package be.vbgn.gradle.buildaspects.internal;
 
 import java.util.Objects;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.gradle.api.NonNullApi;
 
 @NonNullApi
 public class OnetimeFactory<S, R> {
+
+    @Nullable
     private S source;
+    @Nullable
     private R result;
+    @Nullable
     private Function<S, R> factory;
 
     public OnetimeFactory(Function<S, R> factory) {
-        this.factory = factory;
+        this.factory = Objects.requireNonNull(factory, "factory");
     }
 
     private void freeze() {
@@ -33,6 +38,7 @@ public class OnetimeFactory<S, R> {
     public R build() {
         if(result == null) {
             Objects.requireNonNull(source, "Source can not be null at construction time.");
+            Objects.requireNonNull(factory, "Factory can not be null at construction time.");
             result = factory.apply(source);
             freeze();
         }

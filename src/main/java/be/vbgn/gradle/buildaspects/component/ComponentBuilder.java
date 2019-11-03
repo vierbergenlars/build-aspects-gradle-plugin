@@ -15,26 +15,26 @@ public class ComponentBuilder {
         builder = builder.addAspect(aspect);
     }
 
-    public Collection<Component> getComponents() {
+    public Collection<? extends Component> getComponents() {
         return builder.build();
     }
 
     private static class ComponentBuilderInternal {
 
-        private final List<Component> components;
+        private final List<ComponentImpl> components;
 
         public ComponentBuilderInternal() {
-            this(Collections.singletonList(new Component(Collections.emptyList())));
+            this(Collections.singletonList(new ComponentImpl(Collections.emptyList())));
         }
 
-        private ComponentBuilderInternal(List<Component> components) {
+        private ComponentBuilderInternal(List<ComponentImpl> components) {
             this.components = Collections.unmodifiableList(components);
         }
 
 
         public ComponentBuilderInternal addAspect(Aspect<?> aspect) {
-            List<Component> components = new ArrayList<>(this.components.size() * aspect.getProperties().size());
-            for (Component component : this.components) {
+            List<ComponentImpl> components = new ArrayList<>(this.components.size() * aspect.getProperties().size());
+            for (ComponentImpl component : this.components) {
                 for (Property<?> property : aspect.getProperties()) {
                     components.add(component.withProperty(property));
                 }
@@ -43,7 +43,7 @@ public class ComponentBuilder {
             return new ComponentBuilderInternal(components);
         }
 
-        public List<Component> build() {
+        public List<? extends Component> build() {
             return components;
         }
 
