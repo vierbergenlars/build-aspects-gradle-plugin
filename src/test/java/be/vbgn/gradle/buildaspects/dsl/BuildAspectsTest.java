@@ -10,8 +10,7 @@ import org.mockito.Mockito;
 
 public class BuildAspectsTest {
 
-    @Test
-    public void configureAspectsAndProjects() {
+    private Settings createSettingsMock() {
         Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
 
         Mockito.when(settings.project(Mockito.anyString())).then(q -> {
@@ -22,6 +21,12 @@ public class BuildAspectsTest {
             Mockito.when(projectDescriptor.getPath()).thenReturn(path);
             return projectDescriptor;
         });
+       return settings;
+    }
+
+    @Test
+    public void configureAspectsAndProjects() {
+        Settings settings = createSettingsMock();
 
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
                 n -> new ComponentProjectFactory(settings, n));
@@ -48,6 +53,74 @@ public class BuildAspectsTest {
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-systemVersion-2.0-communityEdition-false");
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-systemVersion-1.0-communityEdition-true");
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-systemVersion-2.0-communityEdition-false");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void configureProjectsBeforeAspects() {
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+                n -> new ComponentProjectFactory(settings, n));
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("bla", String.class);
+        });
+    }
+
+    @Test
+    public void configureWithNamer() {
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+                n -> new ComponentProjectFactory(settings, n));
+
+        buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
+                +"-"+desc.getComponent().getProperty("systemVersion")
+                +"-"+(((boolean)desc.getComponent().getProperty("communityEdition"))?"community":"enterprise"));
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", String.class)
+                    .add("1.0")
+                    .add("2.0");
+            aspects.create("communityEdition", Boolean.class)
+                    .add(true)
+                    .add(false);
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA", ":systemB:submoduleB");
+        });
+
+        Mockito.verify(settings).include(":submoduleA", ":systemB:submoduleB");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-1.0-community");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-1.0-enterprise");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-2.0-community");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-2.0-enterprise");
+        Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-1.0-community");
+        Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-2.0-enterprise");
+        Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-1.0-community");
+        Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-2.0-enterprise");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void configureWithNamerAfterProjects() {
+
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+                n -> new ComponentProjectFactory(settings, n));
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
+                +"-"+desc.getComponent().getProperty("systemVersion")
+                +"-"+(((boolean)desc.getComponent().getProperty("communityEdition"))?"community":"enterprise"));
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class Component {
 
@@ -16,6 +17,16 @@ public class Component {
 
     public List<Property<?>> getProperties() {
         return Collections.unmodifiableList(properties);
+    }
+
+    @Nullable
+    public Object getProperty(String name) {
+        for(Property<?> property: properties) {
+            if(property.getName().equals(name)) {
+                return property.getValue();
+            }
+        }
+        return null;
     }
 
     public Map<String, ?> toMap() {
