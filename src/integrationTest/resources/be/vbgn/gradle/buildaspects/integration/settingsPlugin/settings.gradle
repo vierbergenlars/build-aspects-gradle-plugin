@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath "be.vbgn.gradle:build-aspects-plugin:${System.getProperty("pluginVersion")}"
+    }
+
+}
+apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
+
+rootProject.name = 'settingsPlugin'
+
+buildAspects {
+    aspects {
+        create("systemVersion", String) {
+            add("1.0")
+            add("2.0")
+        }
+        create("communityEdition", Boolean) {
+            add(true)
+            add(false)
+        }
+    }
+    projects {
+        project(':')
+    }
+}

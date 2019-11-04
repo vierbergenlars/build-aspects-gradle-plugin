@@ -1,14 +1,32 @@
 plugins {
     id 'java-gradle-plugin'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'org.ajoberstar.reckon' version '0.9.0'
+    id 'org.sonarqube' version '2.6.2'
+}
+group 'be.vbgn.gradle'
+
+sourceCompatibility = 1.8
+
+sourceSets {
+    integrationTest {
+
+    }
 }
 
 repositories {
     jcenter()
 }
 
+configurations {
+    integrationTestImplementation.extendsFrom(testImplementation)
+}
+
 dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.28.2'
+    integrationTestImplementation 'commons-io:commons-io:2.5'
 }
 
 gradlePlugin {
@@ -18,26 +36,30 @@ gradlePlugin {
             implementationClass = 'be.vbgn.gradle.buildaspects.BuildAspectsPlugin'
         }
     }
+    testSourceSets(sourceSets.integrationTest)
 }
 
-// Add a source set for the functional test suite
-sourceSets {
-    functionalTest {
+
+task integrationTest(type: Test, group: 'verification') {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    dependsOn(publishToMavenLocal)
+    doFirst {
+        systemProperty "pluginVersion", project.version
     }
 }
 
-sourceCompatibility = 1.8
-
-gradlePlugin.testSourceSets(sourceSets.functionalTest)
-configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
-
-// Add a task to run the functional tests
-task functionalTest(type: Test, group: 'verification') {
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
+check {
+    dependsOn(tasks.integrationTest)
 }
 
-check {
-    // Run the functional tests as part of `check`
-    dependsOn(tasks.functionalTest)
+sonarqube {
+    properties {
+        properties["sonar.tests"] += sourceSets.integrationTest.allSource.srcDirs
+    }
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
 }

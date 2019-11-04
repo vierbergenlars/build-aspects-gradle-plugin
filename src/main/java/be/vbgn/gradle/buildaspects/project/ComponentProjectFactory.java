@@ -19,7 +19,11 @@ public class ComponentProjectFactory {
         ComponentProjectDescriptor componentProjectDescriptor = new ComponentProjectDescriptor(parentDescriptor,
                 component);
         String projectName = projectNamer.determineName(componentProjectDescriptor);
-        String projectPath = parentDescriptor.getPath() + ":" + projectName;
+        String projectPath = parentDescriptor.getPath();
+        if(!projectPath.endsWith(":")) {
+            projectPath+=":";
+        }
+        projectPath+=projectName;
         settings.include(projectPath);
         ProjectDescriptor projectDescriptor = settings.project(projectPath);
         return new ComponentProject(parentDescriptor, component, projectDescriptor);

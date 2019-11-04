@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.UnknownProjectException;
 import org.gradle.api.initialization.ProjectDescriptor;
@@ -17,6 +18,7 @@ public class ProjectHandler {
     private final Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
     private final EventDispatcher<ProjectDescriptor> projectAddedDispatcher = new EventDispatcher<>();
 
+    @Inject
     public ProjectHandler(Settings settings) {
         this.settings = settings;
     }

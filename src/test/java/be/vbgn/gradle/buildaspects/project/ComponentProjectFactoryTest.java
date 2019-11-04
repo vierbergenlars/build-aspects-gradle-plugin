@@ -33,4 +33,24 @@ public class ComponentProjectFactoryTest {
         assertEquals(component, componentProject.getComponent());
     }
 
+    @Test
+    public void createProjectFromRootProject() {
+        Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
+        ComponentProjectFactory factory = new ComponentProjectFactory(settings, p -> "createdProject");
+        ProjectDescriptor createdProject = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
+        Mockito.when(settings.project(":createdProject")).thenReturn(createdProject);
+        ProjectDescriptor projectA = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
+        Mockito.when(projectA.getName()).thenReturn("projectRoot");
+        Mockito.when(projectA.getPath()).thenReturn(":");
+
+        Component component = TestUtil.createComponent(Collections.singletonMap("aspect1", "value1"));
+
+        ComponentProject componentProject = factory.createProject(projectA, component);
+
+        Mockito.verify(settings).include(":createdProject");
+
+        assertEquals(createdProject, componentProject.getProjectDescriptor());
+        assertEquals(projectA, componentProject.getParentProjectDescriptor());
+        assertEquals(component, componentProject.getComponent());
+    }
 }
