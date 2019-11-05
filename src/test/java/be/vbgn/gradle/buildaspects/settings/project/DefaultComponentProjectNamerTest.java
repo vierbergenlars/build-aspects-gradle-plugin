@@ -14,10 +14,11 @@ public class DefaultComponentProjectNamerTest {
     public void determineName() {
         DefaultComponentProjectNamer namer = new DefaultComponentProjectNamer();
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
-        ComponentProjectDescriptor componentProjectDescriptor = new ComponentProjectDescriptor(projectDescriptor,
+        ParentComponentProjectDescriptor parentComponentProjectDescriptor = new ParentComponentProjectDescriptor(
+                projectDescriptor,
                 TestUtil.createComponent(Collections.singletonMap("aspect1", "value1")));
         Mockito.when(projectDescriptor.getName()).thenReturn("projectA");
-        String generatedName = namer.determineName(componentProjectDescriptor);
+        String generatedName = namer.determineName(parentComponentProjectDescriptor);
 
         assertEquals("projectA-aspect1-value1", generatedName);
     }
@@ -26,11 +27,12 @@ public class DefaultComponentProjectNamerTest {
     public void determineNameMultipleComponents() {
         DefaultComponentProjectNamer namer = new DefaultComponentProjectNamer();
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
-        ComponentProjectDescriptor componentProjectDescriptor = new ComponentProjectDescriptor(projectDescriptor,
+        ParentComponentProjectDescriptor parentComponentProjectDescriptor = new ParentComponentProjectDescriptor(
+                projectDescriptor,
                 TestUtil.createComponent(Collections.singletonMap("aspect1", "value1"),
                         Collections.singletonMap("aspect2", "value2")));
         Mockito.when(projectDescriptor.getName()).thenReturn("projectA");
-        String generatedName = namer.determineName(componentProjectDescriptor);
+        String generatedName = namer.determineName(parentComponentProjectDescriptor);
 
         assertEquals("projectA-aspect1-value1-aspect2-value2", generatedName);
     }

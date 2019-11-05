@@ -4,10 +4,10 @@ import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
 import be.vbgn.gradle.buildaspects.component.Component;
 import be.vbgn.gradle.buildaspects.component.ComponentBuilder;
 import be.vbgn.gradle.buildaspects.internal.OnetimeFactory;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProject;
 import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptorFactory;
 import be.vbgn.gradle.buildaspects.settings.project.DefaultComponentProjectNamer;
+import be.vbgn.gradle.buildaspects.settings.project.ParentComponentProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import groovy.lang.Closure;
 import java.util.Collections;
@@ -29,20 +29,20 @@ public class BuildAspects {
     private final ProjectHandler projectHandler;
 
 
-    private final Set<ComponentProject> componentProjects = new HashSet<>();
-    private final OnetimeFactory<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectBuilderOnetimeFactory;
+    private final Set<ComponentProjectDescriptor> componentProjectDescriptors = new HashSet<>();
+    private final OnetimeFactory<Namer<ParentComponentProjectDescriptor>, ComponentProjectDescriptorFactory> componentProjectBuilderOnetimeFactory;
 
     @Inject
     public BuildAspects(ObjectFactory objectFactory, Settings settings) {
         this(
                 objectFactory.newInstance(AspectHandler.class),
                 objectFactory.newInstance(ProjectHandler.class, settings),
-                namer -> new ComponentProjectFactory(settings, namer)
+                namer -> new ComponentProjectDescriptorFactory(settings, namer)
         );
     }
 
     BuildAspects(AspectHandler aspectHandler, ProjectHandler projectHandler,
-            Function<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectFactoryFactory) {
+            Function<Namer<ParentComponentProjectDescriptor>, ComponentProjectDescriptorFactory> componentProjectFactoryFactory) {
         this.aspectHandler = aspectHandler;
         this.projectHandler = projectHandler;
         componentProjectBuilderOnetimeFactory = new OnetimeFactory<>(componentProjectFactoryFactory);
@@ -57,7 +57,8 @@ public class BuildAspects {
         });
         projectHandler.projectAdded(projectDescriptor -> {
             for (Component component : componentBuilder.getComponents()) {
-                componentProjects.add(componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component));
+                componentProjectDescriptors
+                        .add(componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component));
             }
         });
     }
@@ -86,7 +87,7 @@ public class BuildAspects {
         projects(ConfigureUtil.configureUsing(action));
     }
 
-    public void projectNamer(Namer<ComponentProjectDescriptor> namer) {
+    public void projectNamer(Namer<ParentComponentProjectDescriptor> namer) {
         componentProjectBuilderOnetimeFactory.setSource(namer);
     }
 
@@ -94,7 +95,7 @@ public class BuildAspects {
         projectNamer(namer::call);
     }
 
-    public Set<ComponentProject> getComponentProjects() {
-        return Collections.unmodifiableSet(componentProjects);
+    public Set<ComponentProjectDescriptor> getComponentProjects() {
+        return Collections.unmodifiableSet(componentProjectDescriptors);
     }
 }

@@ -1,23 +1,24 @@
 package be.vbgn.gradle.buildaspects.settings.project;
 
 import be.vbgn.gradle.buildaspects.component.Component;
+import org.gradle.api.Project;
 import org.gradle.api.initialization.ProjectDescriptor;
 
-public class ComponentProjectDescriptor {
+public class ComponentProjectDescriptor extends ParentComponentProjectDescriptor {
 
-    private final ProjectDescriptor parentProjectDescriptor;
-    private final Component component;
+    private final ProjectDescriptor projectDescriptor;
 
-    ComponentProjectDescriptor(ProjectDescriptor parentProjectDescriptor, Component component) {
-        this.parentProjectDescriptor = parentProjectDescriptor;
-        this.component = component;
+    ComponentProjectDescriptor(ProjectDescriptor parentProjectDescriptor,
+            Component component, ProjectDescriptor projectDescriptor) {
+        super(parentProjectDescriptor, component);
+        this.projectDescriptor = projectDescriptor;
     }
 
-    public Component getComponent() {
-        return component;
+    public ProjectDescriptor getProjectDescriptor() {
+        return projectDescriptor;
     }
 
-    public ProjectDescriptor getParentProjectDescriptor() {
-        return parentProjectDescriptor;
+    public boolean isForProject(Project project) {
+        return projectDescriptor.getPath().equals(project.getPath());
     }
 }

@@ -1,7 +1,7 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptorFactory;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
@@ -29,7 +29,7 @@ public class BuildAspectsTest {
         Settings settings = createSettingsMock();
 
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new ComponentProjectFactory(settings, n));
+                n -> new ComponentProjectDescriptorFactory(settings, n));
 
         buildAspects.aspects(aspects -> {
             aspects.create("systemVersion", String.class, aspect -> {
@@ -61,7 +61,7 @@ public class BuildAspectsTest {
         Settings settings = createSettingsMock();
 
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new ComponentProjectFactory(settings, n));
+                n -> new ComponentProjectDescriptorFactory(settings, n));
 
         buildAspects.projects(projects -> {
             projects.include(":submoduleA");
@@ -78,7 +78,7 @@ public class BuildAspectsTest {
         Settings settings = createSettingsMock();
 
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new ComponentProjectFactory(settings, n));
+                n -> new ComponentProjectDescriptorFactory(settings, n));
 
         buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getComponent().getProperty("systemVersion")
@@ -115,7 +115,7 @@ public class BuildAspectsTest {
         Settings settings = createSettingsMock();
 
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new ComponentProjectFactory(settings, n));
+                n -> new ComponentProjectDescriptorFactory(settings, n));
 
         buildAspects.projects(projects -> {
             projects.include(":submoduleA");
