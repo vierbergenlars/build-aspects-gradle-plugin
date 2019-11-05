@@ -17,11 +17,11 @@ public class BuildAspectsTest {
             ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
             String path = q.getArgument(0, String.class);
             String[] components = path.split(":");
-            Mockito.when(projectDescriptor.getName()).thenReturn(components[components.length-1]);
+            Mockito.when(projectDescriptor.getName()).thenReturn(components[components.length - 1]);
             Mockito.when(projectDescriptor.getPath()).thenReturn(path);
             return projectDescriptor;
         });
-       return settings;
+        return settings;
     }
 
     @Test
@@ -68,7 +68,8 @@ public class BuildAspectsTest {
         });
 
         buildAspects.aspects(aspects -> {
-            aspects.create("bla", String.class, aspect -> {});
+            aspects.create("bla", String.class, aspect -> {
+            });
         });
     }
 
@@ -80,8 +81,8 @@ public class BuildAspectsTest {
                 n -> new ComponentProjectFactory(settings, n));
 
         buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
-                +"-"+desc.getComponent().getProperty("systemVersion")
-                +"-"+(((boolean)desc.getComponent().getProperty("communityEdition"))?"community":"enterprise"));
+                + "-" + desc.getComponent().getProperty("systemVersion")
+                + "-" + (((boolean) desc.getComponent().getProperty("communityEdition")) ? "community" : "enterprise"));
 
         buildAspects.aspects(aspects -> {
             aspects.create("systemVersion", String.class, aspect -> {
@@ -121,8 +122,8 @@ public class BuildAspectsTest {
         });
 
         buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
-                +"-"+desc.getComponent().getProperty("systemVersion")
-                +"-"+(((boolean)desc.getComponent().getProperty("communityEdition"))?"community":"enterprise"));
+                + "-" + desc.getComponent().getProperty("systemVersion")
+                + "-" + (((boolean) desc.getComponent().getProperty("communityEdition")) ? "community" : "enterprise"));
     }
 
 }
