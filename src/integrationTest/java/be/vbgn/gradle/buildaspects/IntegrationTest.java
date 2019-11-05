@@ -55,6 +55,9 @@ public class IntegrationTest extends AbstractIntegrationTest {
                 .collect(Collectors.toSet());
         assertEquals(new HashSet<>(Arrays.asList(
                 "",
+                ":moduleA",
+                ":systemB",
+                ":systemB:moduleB",
                 ":moduleA:moduleA-systemVersion-1.0",
                 ":moduleA:moduleA-systemVersion-2.0",
                 ":systemB:moduleB:moduleB-systemVersion-1.0",

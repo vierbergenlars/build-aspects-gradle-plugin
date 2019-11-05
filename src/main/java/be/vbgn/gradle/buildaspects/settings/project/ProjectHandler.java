@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.project;
+package be.vbgn.gradle.buildaspects.settings.project;
 
 import be.vbgn.gradle.buildaspects.internal.EventDispatcher;
 import java.util.Collection;

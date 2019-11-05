@@ -1,14 +1,18 @@
-package be.vbgn.gradle.buildaspects.dsl;
+package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
 import be.vbgn.gradle.buildaspects.component.Component;
 import be.vbgn.gradle.buildaspects.component.ComponentBuilder;
 import be.vbgn.gradle.buildaspects.internal.OnetimeFactory;
-import be.vbgn.gradle.buildaspects.project.ComponentProjectDescriptor;
-import be.vbgn.gradle.buildaspects.project.ComponentProjectFactory;
-import be.vbgn.gradle.buildaspects.project.DefaultComponentProjectNamer;
-import be.vbgn.gradle.buildaspects.project.ProjectHandler;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProject;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.settings.project.DefaultComponentProjectNamer;
+import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import groovy.lang.Closure;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.gradle.api.Action;
@@ -23,6 +27,9 @@ public class BuildAspects {
 
     private final AspectHandler aspectHandler;
     private final ProjectHandler projectHandler;
+
+
+    private final Set<ComponentProject> componentProjects = new HashSet<>();
     private final OnetimeFactory<Namer<ComponentProjectDescriptor>, ComponentProjectFactory> componentProjectBuilderOnetimeFactory;
 
     @Inject
@@ -50,10 +57,9 @@ public class BuildAspects {
         });
         projectHandler.projectAdded(projectDescriptor -> {
             for (Component component : componentBuilder.getComponents()) {
-                componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component);
+                componentProjects.add(componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component));
             }
         });
-
     }
 
     public AspectHandler getAspects() {
@@ -86,5 +92,9 @@ public class BuildAspects {
 
     public void projectNamer(Closure<String> namer) {
         projectNamer(namer::call);
+    }
+
+    public Set<ComponentProject> getComponentProjects() {
+        return Collections.unmodifiableSet(componentProjects);
     }
 }

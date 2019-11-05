@@ -1,8 +1,8 @@
-package be.vbgn.gradle.buildaspects.dsl;
+package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.project.ComponentProjectFactory;
-import be.vbgn.gradle.buildaspects.project.ProjectHandler;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;

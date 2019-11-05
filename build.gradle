@@ -47,6 +47,7 @@ task integrationTest(type: Test, group: 'verification') {
     doFirst {
         systemProperty "pluginVersion", project.version
     }
+    shouldRunAfter(tasks.test)
 }
 
 check {

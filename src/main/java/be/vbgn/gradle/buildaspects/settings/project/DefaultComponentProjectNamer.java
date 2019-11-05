@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.project;
+package be.vbgn.gradle.buildaspects.settings.project;
 
 import java.util.stream.Collectors;
 import org.gradle.api.Namer;

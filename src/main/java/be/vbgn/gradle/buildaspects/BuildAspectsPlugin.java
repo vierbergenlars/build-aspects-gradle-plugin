@@ -3,7 +3,12 @@
  */
 package be.vbgn.gradle.buildaspects;
 
-import be.vbgn.gradle.buildaspects.dsl.BuildAspects;
+import be.vbgn.gradle.buildaspects.dsl.BuildAspectsComponentProject;
+import be.vbgn.gradle.buildaspects.dsl.BuildAspectsProject;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
+import be.vbgn.gradle.buildaspects.settings.project.ComponentProject;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.internal.plugins.DslObject;
