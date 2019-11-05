@@ -1,12 +1,15 @@
 package be.vbgn.gradle.buildaspects;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
@@ -23,20 +26,40 @@ public class IntegrationTest extends AbstractIntegrationTest {
                 .withArguments("clean")
                 .build();
 
-        List<String> taskPaths = buildResult.getTasks()
+        Set<String> projectPaths = buildResult.getTasks()
                 .stream()
                 .map(BuildTask::getPath)
-                .collect(Collectors.toList());
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
 
-        for(String projectName: Arrays.asList(
+        assertEquals(new HashSet<>(Arrays.asList(
                 "",
                 ":settingsPlugin-systemVersion-1.0-communityEdition-true",
                 ":settingsPlugin-systemVersion-2.0-communityEdition-true",
                 ":settingsPlugin-systemVersion-1.0-communityEdition-false",
                 ":settingsPlugin-systemVersion-2.0-communityEdition-false"
-                )) {
-            assertTrue(projectName+":clean", taskPaths.contains(projectName+":clean"));
-        }
+        )), projectPaths);
+    }
+
+    @Test
+    public void subprojects() throws IOException {
+
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("subprojects"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":moduleA:moduleA-systemVersion-1.0",
+                ":moduleA:moduleA-systemVersion-2.0",
+                ":systemB:moduleB:moduleB-systemVersion-1.0",
+                ":systemB:moduleB:moduleB-systemVersion-2.0"
+        )), projectPaths);
     }
 
 }

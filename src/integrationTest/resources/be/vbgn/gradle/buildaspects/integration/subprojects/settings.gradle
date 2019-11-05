@@ -1,0 +1,24 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath "be.vbgn.gradle:build-aspects-plugin:${System.getProperty("pluginVersion")}"
+    }
+
+}
+apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
+
+rootProject.name = 'subprojects'
+
+buildAspects {
+    aspects {
+        create("systemVersion", String) {
+            add("1.0")
+            add("2.0")
+        }
+    }
+    projects {
+        include(':moduleA', ':systemB:moduleB')
+    }
+}
