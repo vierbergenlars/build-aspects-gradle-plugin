@@ -3,8 +3,10 @@
  */
 package be.vbgn.gradle.buildaspects;
 
-import be.vbgn.gradle.buildaspects.project.dsl.BuildAspects;
+import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
+import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildComponents;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,5 +20,29 @@ public class BuildAspectsPlugin implements Plugin<Settings> {
     public void apply(Settings settings) {
         BuildAspects buildAspects = new DslObject(settings).getExtensions()
                 .create("buildAspects", BuildAspects.class, settings);
+        settings.getGradle().allprojects(project -> {
+            // Applies if project is a leaf project
+            buildAspects.getComponentProjects()
+                    .stream()
+                    .filter(cp -> cp.isForProject(project))
+                    .findAny()
+                    .ifPresent(cp -> {
+                        project.getExtensions().create("buildComponents", BuildComponents.class, cp.getComponent());
+                        project.getExtensions()
+                                .create("buildAspects", BuildAspectsLeaf.class, project, cp.getComponent());
+                    });
+
+            // Applies if project has subprojects that are components
+            List<ComponentProjectDescriptor> componentProjectDescriptors = buildAspects.getComponentProjects()
+                    .stream()
+                    .filter(cp -> cp.getParentProjectDescriptor().getPath().equals(project.getPath()))
+                    .collect(Collectors.toList());
+
+            if (!componentProjectDescriptors.isEmpty()) {
+                project.getExtensions()
+                        .create("buildAspects", BuildAspectsParent.class, project, componentProjectDescriptors);
+            }
+
+        });
     }
 }
