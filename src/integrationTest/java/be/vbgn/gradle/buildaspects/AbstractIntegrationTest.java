@@ -18,6 +18,12 @@ public abstract class AbstractIntegrationTest {
 
     @Parameters(name = "Gradle v{0}")
     public static Collection<Object[]> testData() {
+        String forceGradleVersion = System.getProperty("be.vbgn.gradle.buildaspects.integration.useGradleVersion");
+        if(forceGradleVersion != null) {
+            return Arrays.asList(new Object[][] {
+                    {forceGradleVersion},
+            });
+        }
         return Arrays.asList(new Object[][]{
                 {"5.6.4"},
                 {"5.5.1"},
@@ -34,11 +40,16 @@ public abstract class AbstractIntegrationTest {
 
     protected GradleRunner createGradleRunner(Path projectFolder) throws IOException {
         FileUtils.copyDirectory(projectFolder.toFile(), testProjectDir.getRoot());
-        return GradleRunner.create()
+        GradleRunner gradleRunner = GradleRunner.create()
                 .withProjectDir(testProjectDir.getRoot())
-                .withGradleVersion(gradleVersion)
                 .withDebug(true)
                 .forwardOutput();
+
+        if(System.getProperty("be.vbgn.gradle.buildaspects.integration.forceCurrentGradleVersion") != null) {
+            gradleRunner.withGradleVersion(gradleVersion);
+        }
+
+        return gradleRunner;
 
     }
 

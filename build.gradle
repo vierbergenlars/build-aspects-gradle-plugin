@@ -40,12 +40,17 @@ gradlePlugin {
 }
 
 
+import org.gradle.util.GradleVersion
 task integrationTest(type: Test, group: 'verification') {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     dependsOn(publishToMavenLocal)
     doFirst {
         systemProperty "pluginVersion", project.version
+        if (gradle.startParameter.offline) {
+            systemProperty "be.vbgn.gradle.buildaspects.integration.useGradleVersion", GradleVersion.current().version
+            systemProperty "be.vbgn.gradle.buildaspects.integration.forceCurrentGradleVersion", "true"
+        }
     }
     shouldRunAfter(tasks.test)
 }
