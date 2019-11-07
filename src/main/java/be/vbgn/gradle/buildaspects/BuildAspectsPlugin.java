@@ -6,41 +6,38 @@ package be.vbgn.gradle.buildaspects;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildComponents;
+import be.vbgn.gradle.buildaspects.project.project.ComponentProject;
+import be.vbgn.gradle.buildaspects.project.project.ComponentProjectFactory;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
-import org.gradle.api.internal.plugins.DslObject;
 
 public class BuildAspectsPlugin implements Plugin<Settings> {
 
     @Override
     public void apply(Settings settings) {
-        BuildAspects buildAspects = new DslObject(settings).getExtensions()
-                .create("buildAspects", BuildAspects.class, settings);
+        BuildAspects buildAspects = settings.getExtensions().create("buildAspects", BuildAspects.class, settings);
+        ComponentProjectFactory componentProjectFactory = new ComponentProjectFactory(
+                buildAspects.getComponentProjects());
         settings.getGradle().allprojects(project -> {
             // Applies if project is a leaf project
-            buildAspects.getComponentProjects()
-                    .stream()
-                    .filter(cp -> cp.isForProject(project))
-                    .findAny()
+            componentProjectFactory.createComponentProject(project)
                     .ifPresent(cp -> {
-                        project.getExtensions().create("buildComponents", BuildComponents.class, cp.getComponent());
+                        project.getExtensions()
+                                .create("buildComponents", BuildComponents.class, cp.getComponent());
                         project.getExtensions()
                                 .create("buildAspects", BuildAspectsLeaf.class, project, cp.getComponent());
                     });
 
             // Applies if project has subprojects that are components
-            List<ComponentProjectDescriptor> componentProjectDescriptors = buildAspects.getComponentProjects()
-                    .stream()
-                    .filter(cp -> cp.getParentProjectDescriptor().getPath().equals(project.getPath()))
-                    .collect(Collectors.toList());
-
-            if (!componentProjectDescriptors.isEmpty()) {
+            Set<ComponentProject> componentProjects = componentProjectFactory.createComponentProjectsForParent(project);
+            if (!componentProjects.isEmpty()) {
                 project.getExtensions()
-                        .create("buildAspects", BuildAspectsParent.class, project, componentProjectDescriptors);
+                        .create("buildAspects", BuildAspectsParent.class, project, componentProjects);
             }
 
         });

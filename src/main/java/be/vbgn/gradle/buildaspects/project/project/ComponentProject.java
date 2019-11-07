@@ -4,8 +4,10 @@ import be.vbgn.gradle.buildaspects.component.Component;
 import org.gradle.api.Project;
 
 public class ComponentProject {
+
     private final Component component;
     private final Project project;
+
 
     public ComponentProject(Project project, Component component) {
         this.component = component;

@@ -2,7 +2,7 @@ package be.vbgn.gradle.buildaspects.project.dsl;
 
 import be.vbgn.gradle.buildaspects.component.Component;
 import be.vbgn.gradle.buildaspects.project.project.ComponentProject;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import org.gradle.api.Action;
@@ -13,10 +13,10 @@ import org.gradle.api.Project;
 public class BuildAspectsParent implements BuildAspects {
 
     private final Project project;
-    private final List<? extends ComponentProject> componentProjects;
+    private final Set<? extends ComponentProject> componentProjects;
 
     @Inject
-    public BuildAspectsParent(Project project, List<? extends ComponentProject> componentProjects) {
+    public BuildAspectsParent(Project project, Set<? extends ComponentProject> componentProjects) {
         this.project = project;
         this.componentProjects = componentProjects;
     }
