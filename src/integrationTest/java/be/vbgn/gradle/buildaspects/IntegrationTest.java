@@ -1,14 +1,12 @@
 package be.vbgn.gradle.buildaspects;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.testkit.runner.BuildResult;
@@ -45,23 +43,24 @@ public class IntegrationTest extends AbstractIntegrationTest {
     public void subprojects() throws IOException {
 
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("subprojects"))
-                .withArguments("clean")
+                .withArguments("clean", "--stacktrace")
                 .build();
 
         Set<String> projectPaths = buildResult.getTasks()
                 .stream()
                 .map(BuildTask::getPath)
-                .map(s -> s.substring(0, s.indexOf(":clean")))
                 .collect(Collectors.toSet());
         assertEquals(new HashSet<>(Arrays.asList(
-                "",
-                ":moduleA",
-                ":systemB",
-                ":systemB:moduleB",
-                ":moduleA:moduleA-systemVersion-1.0",
-                ":moduleA:moduleA-systemVersion-2.0",
-                ":systemB:moduleB:moduleB-systemVersion-1.0",
-                ":systemB:moduleB:moduleB-systemVersion-2.0"
+                ":clean",
+                ":moduleA:clean",
+                ":systemB:clean",
+                ":systemB:moduleB:clean",
+                ":moduleA:moduleA-systemVersion-1.0:clean",
+                ":moduleA:moduleA-systemVersion-1.0:moduleASystemVersion1",
+                ":moduleA:moduleA-systemVersion-2.0:clean",
+                ":systemB:moduleB:moduleB-systemVersion-1.0:clean",
+                ":systemB:moduleB:moduleB-systemVersion-2.0:clean",
+                ":systemB:moduleB:unmapped-subproject:clean"
         )), projectPaths);
     }
 

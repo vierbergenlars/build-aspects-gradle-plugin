@@ -28,7 +28,7 @@ public class BuildAspectsPlugin implements Plugin<Settings> {
             componentProjectFactory.createComponentProject(project)
                     .ifPresent(cp -> {
                         project.getExtensions()
-                                .create("buildComponents", BuildComponents.class, cp.getComponent());
+                                .add("buildComponents", new BuildComponents(cp.getComponent()));
                         project.getExtensions()
                                 .create("buildAspects", BuildAspectsLeaf.class, project, cp.getComponent());
                     });

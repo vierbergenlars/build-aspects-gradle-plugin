@@ -22,3 +22,4 @@ buildAspects {
         include(':moduleA', ':systemB:moduleB')
     }
 }
+include(':systemB:moduleB:unmapped-subproject')
