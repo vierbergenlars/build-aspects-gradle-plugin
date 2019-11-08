@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.gradle.api.NonNullApi;
 
-@NonNullApi
 public class ComponentImpl implements Component {
 
     private final List<? extends Property<?>> properties;
@@ -32,9 +30,10 @@ public class ComponentImpl implements Component {
                 return property.getValue();
             }
         }
-        throw new IllegalArgumentException("A property with name '"+name+"' does not exist.");
+        throw new IllegalArgumentException("A property with name '" + name + "' does not exist.");
     }
 
+    @Nullable
     public Map<String, ?> toMap() {
         return Collections.unmodifiableMap(getProperties()
                 .stream()

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.gradle.api.NonNullApi;
 
 class WritableAspectImpl<T> implements WritableAspect<T> {
 

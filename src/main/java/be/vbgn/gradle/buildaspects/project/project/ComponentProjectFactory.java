@@ -4,7 +4,6 @@ import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,8 +38,9 @@ public class ComponentProjectFactory {
     public Set<ComponentProject> createComponentProjectsForParent(Project parentProject) {
         Set<ComponentProject> childComponentProjects = new HashSet<>(parentProject.getChildProjects().size());
         for (ComponentProjectDescriptor componentProjectDescriptor : componentProjectDescriptors) {
-            if(componentProjectDescriptor.getParentProjectDescriptor().getPath().equals(parentProject.getPath())) {
-                Project childProject = parentProject.project(componentProjectDescriptor.getProjectDescriptor().getPath());
+            if (componentProjectDescriptor.getParentProjectDescriptor().getPath().equals(parentProject.getPath())) {
+                Project childProject = parentProject
+                        .project(componentProjectDescriptor.getProjectDescriptor().getPath());
                 childComponentProjects.add(createComponentProject(childProject, componentProjectDescriptor));
             }
         }

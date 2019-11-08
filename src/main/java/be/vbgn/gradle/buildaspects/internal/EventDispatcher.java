@@ -3,9 +3,7 @@ package be.vbgn.gradle.buildaspects.internal;
 import java.util.LinkedList;
 import java.util.List;
 import org.gradle.api.Action;
-import org.gradle.api.NonNullApi;
 
-@NonNullApi
 public class EventDispatcher<T> {
 
     private final List<Action<T>> eventListeners = new LinkedList<>();

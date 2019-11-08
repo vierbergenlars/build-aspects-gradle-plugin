@@ -7,8 +7,9 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 
 public class BuildAspectsLeaf implements BuildAspects {
-    private Project project;
-    private Component component;
+
+    private final Project project;
+    private final Component component;
 
     @Inject
     public BuildAspectsLeaf(Project project, Component component) {
@@ -18,7 +19,7 @@ public class BuildAspectsLeaf implements BuildAspects {
 
     @Override
     public void when(Predicate<? super Component> filter, Action<? super Project> configure) {
-        if(filter.test(component)) {
+        if (filter.test(component)) {
             configure.execute(project);
         }
     }

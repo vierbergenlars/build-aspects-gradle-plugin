@@ -8,9 +8,7 @@ import groovy.lang.ReadOnlyPropertyException;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.gradle.api.NonNullApi;
 
-@NonNullApi
 public class BuildComponents extends GroovyObjectSupport implements Component {
 
     private final Component component;
@@ -33,7 +31,7 @@ public class BuildComponents extends GroovyObjectSupport implements Component {
         }
         try {
             return component.getProperty(name);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new MissingPropertyException(name, getClass());
         }
     }

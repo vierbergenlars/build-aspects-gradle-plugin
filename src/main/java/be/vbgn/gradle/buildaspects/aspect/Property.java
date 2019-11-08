@@ -3,9 +3,7 @@ package be.vbgn.gradle.buildaspects.aspect;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.gradle.api.Named;
-import org.gradle.api.NonNullApi;
 
-@NonNullApi
 public class Property<T> implements Named {
 
     private final String name;

@@ -6,10 +6,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import org.gradle.api.Action;
-import org.gradle.api.NonNullApi;
 import org.gradle.api.Project;
 
-@NonNullApi
 public class BuildAspectsParent implements BuildAspects {
 
     private final Project project;

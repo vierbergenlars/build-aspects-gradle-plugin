@@ -11,12 +11,12 @@ import org.gradle.api.Action;
 
 public class AspectHandler {
 
-    private Set<String> aspectNames = new HashSet<>();
-    private List<Aspect<?>> aspects = new ArrayList<>();
+    private final Set<String> aspectNames = new HashSet<>();
+    private final List<Aspect<?>> aspects = new ArrayList<>();
 
-    private EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
+    private final EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
 
-    public <T> Aspect<T> create(String name, Class<T> type, Action<WritableAspect<T>> configure) {
+    public <T> Aspect<T> create(String name, Class<T> type, Action<? super WritableAspect<T>> configure) {
         if (!aspectNames.add(name)) {
             throw new IllegalArgumentException("Duplicate aspect with name " + name);
         }

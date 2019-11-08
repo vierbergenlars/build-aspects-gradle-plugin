@@ -9,10 +9,7 @@ import be.vbgn.gradle.buildaspects.project.dsl.BuildComponents;
 import be.vbgn.gradle.buildaspects.project.project.ComponentProject;
 import be.vbgn.gradle.buildaspects.project.project.ComponentProjectFactory;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
 import org.gradle.api.initialization.Settings;
 

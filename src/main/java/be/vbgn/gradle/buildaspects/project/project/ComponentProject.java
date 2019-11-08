@@ -2,10 +2,8 @@ package be.vbgn.gradle.buildaspects.project.project;
 
 import be.vbgn.gradle.buildaspects.component.Component;
 import java.util.Objects;
-import org.gradle.api.NonNullApi;
 import org.gradle.api.Project;
 
-@NonNullApi
 public class ComponentProject {
 
     private final Component component;

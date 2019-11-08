@@ -9,7 +9,6 @@ import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptorFa
 import be.vbgn.gradle.buildaspects.settings.project.DefaultComponentProjectNamer;
 import be.vbgn.gradle.buildaspects.settings.project.ParentComponentProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
-import groovy.lang.Closure;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,12 +16,9 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
-import org.gradle.api.NonNullApi;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.util.ConfigureUtil;
 
-@NonNullApi
 public class BuildAspects {
 
     private final AspectHandler aspectHandler;
@@ -71,10 +67,6 @@ public class BuildAspects {
         action.execute(aspectHandler);
     }
 
-    public void aspects(Closure action) {
-        aspects(ConfigureUtil.configureUsing(action));
-    }
-
     public ProjectHandler getProjects() {
         return projectHandler;
     }
@@ -83,16 +75,8 @@ public class BuildAspects {
         action.execute(projectHandler);
     }
 
-    public void projects(Closure action) {
-        projects(ConfigureUtil.configureUsing(action));
-    }
-
     public void projectNamer(Namer<ParentComponentProjectDescriptor> namer) {
         componentProjectBuilderOnetimeFactory.setSource(namer);
-    }
-
-    public void projectNamer(Closure<String> namer) {
-        projectNamer(namer::call);
     }
 
     public Set<ComponentProjectDescriptor> getComponentProjects() {
