@@ -32,7 +32,7 @@ public class ComponentImpl implements Component {
                 return property.getValue();
             }
         }
-        return null;
+        throw new IllegalArgumentException("A property with name '"+name+"' does not exist.");
     }
 
     public Map<String, ?> toMap() {
