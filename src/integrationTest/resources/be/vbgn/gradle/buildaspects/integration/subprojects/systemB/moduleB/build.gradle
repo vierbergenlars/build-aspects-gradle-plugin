@@ -20,4 +20,10 @@ buildAspects.withAspect("systemVersion", "1.0") {
 
 buildAspects.withAspect("systemVersion", "2.0") {
     assert buildComponents.systemVersion == "2.0"
+    try {
+        assert buildComponents.nonexistingProperty != null, "Exception should have been thrown for nonexisting property"
+        assert false, "Exception should have been thrown for nonexisting property"
+    } catch(MissingPropertyException _) {
+
+    }
 }

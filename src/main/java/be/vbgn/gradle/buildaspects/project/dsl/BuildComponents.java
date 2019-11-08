@@ -34,7 +34,7 @@ public class BuildComponents extends GroovyObjectSupport implements Component {
         try {
             return component.getProperty(name);
         } catch(IllegalArgumentException e) {
-            throw new MissingPropertyException(name, getClass(), e);
+            throw new MissingPropertyException(name, getClass());
         }
     }
 
