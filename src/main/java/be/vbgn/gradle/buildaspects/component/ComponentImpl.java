@@ -5,15 +5,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.gradle.api.NonNullApi;
 
+@NonNullApi
 public class ComponentImpl implements Component {
 
-    private List<Property<?>> properties;
+    private final List<? extends Property<?>> properties;
 
-    ComponentImpl(List<Property<?>> properties) {
-        this.properties = properties;
+    ComponentImpl(List<? extends Property<?>> properties) {
+        this.properties = Objects.requireNonNull(properties);
     }
 
     @Override
@@ -42,5 +45,27 @@ public class ComponentImpl implements Component {
         List<Property<?>> properties = new ArrayList<>(this.properties);
         properties.add(property);
         return new ComponentImpl(properties);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComponentImpl component = (ComponentImpl) o;
+        return getProperties().equals(component.getProperties());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getProperties());
+    }
+
+    @Override
+    public String toString() {
+        return "Component" + toMap();
     }
 }
