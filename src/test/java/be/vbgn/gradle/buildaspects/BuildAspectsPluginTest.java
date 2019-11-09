@@ -6,15 +6,15 @@ package be.vbgn.gradle.buildaspects;
 import static org.junit.Assert.assertNotNull;
 
 import org.gradle.api.Project;
+import org.gradle.api.internal.plugins.PluginApplicationException;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 
-/**
- * A simple unit test for the 'be.vbgn.gradle.buildaspects.greeting' plugin.
- */
 public class BuildAspectsPluginTest {
-
-    @Test
-    public void pluginRegistersATask() {
+    @Test(expected = PluginApplicationException.class)
+    public void throwsWhenAppliedOnProject() {
+        Project project = ProjectBuilder.builder().build();
+        project.getPluginManager().apply(BuildAspectsPlugin.class);
     }
+
 }

@@ -11,11 +11,11 @@ import be.vbgn.gradle.buildaspects.project.project.ComponentProjectFactory;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import java.util.Set;
 import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.internal.plugins.PluginApplicationException;
 
-public class BuildAspectsPlugin implements Plugin<Settings> {
-
-    @Override
+public class BuildAspectsPlugin implements Plugin<Object> {
     public void apply(Settings settings) {
         BuildAspects buildAspects = settings.getExtensions().create("buildAspects", BuildAspects.class, settings);
         ComponentProjectFactory componentProjectFactory = new ComponentProjectFactory(
@@ -28,6 +28,7 @@ public class BuildAspectsPlugin implements Plugin<Settings> {
                                 .add("buildComponents", new BuildComponents(cp.getComponent()));
                         project.getExtensions()
                                 .create("buildAspects", BuildAspectsLeaf.class, project, cp.getComponent());
+                        project.getPluginManager().apply(getClass());
                     });
 
             // Applies if project has subprojects that are components
@@ -35,8 +36,27 @@ public class BuildAspectsPlugin implements Plugin<Settings> {
             if (!componentProjects.isEmpty()) {
                 project.getExtensions()
                         .create("buildAspects", BuildAspectsParent.class, project, componentProjects);
+                project.getPluginManager().apply(getClass());
             }
 
         });
+    }
+
+    public void apply(Project project) {
+        if(project.getExtensions().findByName("buildAspects") == null) {
+            throw new IllegalStateException("This plugin can not be applied to a project manually.");
+        }
+
+    }
+
+    @Override
+    public void apply(Object target) {
+        if(target instanceof Settings) {
+            apply((Settings)target);
+        } else if(target instanceof Project) {
+            apply((Project)target);
+        } else {
+            throw new IllegalArgumentException("The plugin can only be applied to Settings and Project.");
+        }
     }
 }
