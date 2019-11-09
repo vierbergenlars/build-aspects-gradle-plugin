@@ -17,10 +17,7 @@ buildAspects {
             add("1.0")
             add("2.0")
         }
-        create("communityEdition", Boolean) {
-            add(true)
-            add(false)
-        }
+        create("communityEdition", Boolean, [true, false])
     }
     projects {
         project(':')

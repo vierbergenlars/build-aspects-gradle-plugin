@@ -13,8 +13,12 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     private final List<T> options;
 
     WritableAspectImpl(String name) {
+        this(name, new ArrayList<>());
+    }
+
+    private WritableAspectImpl(String name, List<T> options) {
         this.name = name;
-        this.options = new ArrayList<>();
+        this.options = options;
     }
 
     @Override
@@ -38,6 +42,10 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
         return Collections.unmodifiableList(getOptions().stream()
                 .map(o -> new Property<T>(name, o))
                 .collect(Collectors.toList()));
+    }
+
+    Aspect<T> frozen() {
+        return new WritableAspectImpl<T>(name, Collections.unmodifiableList(options));
     }
 
 }

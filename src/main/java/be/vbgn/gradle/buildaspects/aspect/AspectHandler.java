@@ -16,15 +16,22 @@ public class AspectHandler {
 
     private final EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
 
+    public <T> Aspect<T> create(String name, Class<T> type, Iterable<? extends T> items) {
+        return create(name, type, a -> {
+            items.forEach(a::add);
+        });
+    }
+
     public <T> Aspect<T> create(String name, Class<T> type, Action<? super WritableAspect<T>> configure) {
         if (!aspectNames.add(name)) {
             throw new IllegalArgumentException("Duplicate aspect with name " + name);
         }
-        WritableAspect<T> aspect = new WritableAspectImpl<T>(name);
+        WritableAspectImpl<T> aspect = new WritableAspectImpl<T>(name);
         configure.execute(aspect);
-        aspects.add(aspect);
-        addAspectDispatcher.fire(aspect);
-        return aspect;
+        Aspect<T> frozenAspect = aspect.frozen();
+        aspects.add(frozenAspect);
+        addAspectDispatcher.fire(frozenAspect);
+        return frozenAspect;
     }
 
     public Collection<Aspect<?>> getAspects() {

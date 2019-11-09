@@ -46,4 +46,11 @@ public class AspectHandlerTest {
         assertTrue(handlerFired.get());
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void modifyAspectAfterCreate() {
+        AspectHandler handler = new AspectHandler();
+        WritableAspect<String> aspect = (WritableAspect<String>)handler.create("test1", String.class, a -> {});
+        aspect.add("xyz");
+    }
+
 }
