@@ -13,10 +13,7 @@ rootProject.name = 'subprojects'
 
 buildAspects {
     aspects {
-        create("systemVersion", String) {
-            add("1.0")
-            add("2.0")
-        }
+        create("systemVersion", "1.0", "2.0")
     }
     projects {
         include(':moduleA', ':systemB:moduleB')
