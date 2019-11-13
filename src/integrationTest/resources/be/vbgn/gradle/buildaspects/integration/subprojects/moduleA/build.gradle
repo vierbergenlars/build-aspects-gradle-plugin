@@ -1,6 +1,6 @@
 def system1ProjectCalled = false
 def system3ProjectCalled = false
-buildAspects.withAspect("systemVersion", "1.0") {
+buildAspects.withVariant("systemVersion", "1.0") {
     system1ProjectCalled = true
     assert name == 'moduleA-systemVersion-1.0'
     task moduleASystemVersion1 {
@@ -9,7 +9,7 @@ buildAspects.withAspect("systemVersion", "1.0") {
     clean.dependsOn(moduleASystemVersion1)
 }
 
-buildAspects.withAspect("systemVersion", "3.0") {
+buildAspects.withVariant("systemVersion", "3.0") {
     system3ProjectCalled = true
 }
 

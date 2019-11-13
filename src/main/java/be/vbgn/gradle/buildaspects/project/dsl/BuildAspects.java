@@ -10,7 +10,7 @@ public interface BuildAspects {
 
     void when(Predicate<? super Variant> filter, Action<? super Project> configure);
 
-    default void withAspect(String aspect, Object value, Action<? super Project> configure) {
+    default void withVariant(String aspect, Object value, Action<? super Project> configure) {
         when(c -> Objects.equals(c.getProperty(aspect), value), configure);
     }
 }
