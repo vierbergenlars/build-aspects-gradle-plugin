@@ -5,37 +5,37 @@ package be.vbgn.gradle.buildaspects;
 
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
-import be.vbgn.gradle.buildaspects.project.dsl.BuildComponents;
-import be.vbgn.gradle.buildaspects.project.project.ComponentProject;
-import be.vbgn.gradle.buildaspects.project.project.ComponentProjectFactory;
+import be.vbgn.gradle.buildaspects.project.dsl.BuildVariant;
+import be.vbgn.gradle.buildaspects.project.project.VariantProject;
+import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import java.util.Set;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
-import org.gradle.api.internal.plugins.PluginApplicationException;
 
 public class BuildAspectsPlugin implements Plugin<Object> {
+
     public void apply(Settings settings) {
         BuildAspects buildAspects = settings.getExtensions().create("buildAspects", BuildAspects.class, settings);
-        ComponentProjectFactory componentProjectFactory = new ComponentProjectFactory(
-                buildAspects.getComponentProjects());
+        VariantProjectFactory variantProjectFactory = new VariantProjectFactory(
+                buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
             // Applies if project is a leaf project
-            componentProjectFactory.createComponentProject(project)
-                    .ifPresent(cp -> {
+            variantProjectFactory.createVariantProject(project)
+                    .ifPresent(vp -> {
                         project.getExtensions()
-                                .add("buildComponents", new BuildComponents(cp.getComponent()));
+                                .add("buildVariant", new BuildVariant(vp.getVariant()));
                         project.getExtensions()
-                                .create("buildAspects", BuildAspectsLeaf.class, project, cp.getComponent());
+                                .create("buildAspects", BuildAspectsLeaf.class, project, vp.getVariant());
                         project.getPluginManager().apply(getClass());
                     });
 
-            // Applies if project has subprojects that are components
-            Set<ComponentProject> componentProjects = componentProjectFactory.createComponentProjectsForParent(project);
-            if (!componentProjects.isEmpty()) {
+            // Applies if project has subprojects that are variants
+            Set<VariantProject> variantProjects = variantProjectFactory.createVariantProjectsForParent(project);
+            if (!variantProjects.isEmpty()) {
                 project.getExtensions()
-                        .create("buildAspects", BuildAspectsParent.class, project, componentProjects);
+                        .create("buildAspects", BuildAspectsParent.class, project, variantProjects);
                 project.getPluginManager().apply(getClass());
             }
 
@@ -43,7 +43,7 @@ public class BuildAspectsPlugin implements Plugin<Object> {
     }
 
     public void apply(Project project) {
-        if(project.getExtensions().findByName("buildAspects") == null) {
+        if (project.getExtensions().findByName("buildAspects") == null) {
             throw new IllegalStateException("This plugin can not be applied to a project manually.");
         }
 
@@ -51,10 +51,10 @@ public class BuildAspectsPlugin implements Plugin<Object> {
 
     @Override
     public void apply(Object target) {
-        if(target instanceof Settings) {
-            apply((Settings)target);
-        } else if(target instanceof Project) {
-            apply((Project)target);
+        if (target instanceof Settings) {
+            apply((Settings) target);
+        } else if (target instanceof Project) {
+            apply((Project) target);
         } else {
             throw new IllegalArgumentException("The plugin can only be applied to Settings and Project.");
         }

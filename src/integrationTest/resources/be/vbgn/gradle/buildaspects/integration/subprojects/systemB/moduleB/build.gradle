@@ -1,29 +1,29 @@
 subprojects {
-    if(name == 'moduleB-systemVersion-1.0' || name == 'moduleB-systemVersion-2.0') {
+    if (name == 'moduleB-systemVersion-1.0' || name == 'moduleB-systemVersion-2.0') {
         assert project.extensions.findByName("buildAspects") != null
-        assert project.extensions.findByName("buildComponents") != null
+        assert project.extensions.findByName("buildVariant") != null
     } else {
         assert project.extensions.findByName("buildAspects") == null
-        assert project.extensions.findByName("buildComponents") == null
+        assert project.extensions.findByName("buildVariant") == null
     }
 }
 
 buildAspects.withAspect("systemVersion", "1.0") {
-    assert buildComponents.getProperty("systemVersion") == "1.0"
+    assert buildVariant.getProperty("systemVersion") == "1.0"
     try {
-        buildComponents.systemVersion = "bla"
+        buildVariant.systemVersion = "bla"
     } catch (ReadOnlyPropertyException _) {
         // No Op
     }
-    assert buildComponents.getProperty("systemVersion") == "1.0"
+    assert buildVariant.getProperty("systemVersion") == "1.0"
 }
 
 buildAspects.withAspect("systemVersion", "2.0") {
-    assert buildComponents.systemVersion == "2.0"
+    assert buildVariant.systemVersion == "2.0"
     try {
-        assert buildComponents.nonexistingProperty != null, "Exception should have been thrown for nonexisting property"
+        assert buildVariant.nonexistingProperty != null, "Exception should have been thrown for nonexisting property"
         assert false, "Exception should have been thrown for nonexisting property"
-    } catch(MissingPropertyException _) {
+    } catch (MissingPropertyException _) {
 
     }
 }

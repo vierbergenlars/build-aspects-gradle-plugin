@@ -1,17 +1,17 @@
 package be.vbgn.gradle.buildaspects.project.project;
 
-import be.vbgn.gradle.buildaspects.component.Component;
+import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.Objects;
 import org.gradle.api.Project;
 
-public class ComponentProject {
+public class VariantProject {
 
-    private final Component component;
+    private final Variant variant;
     private final Project project;
 
 
-    ComponentProject(Project project, Component component) {
-        this.component = component;
+    VariantProject(Project project, Variant variant) {
+        this.variant = variant;
         this.project = project;
     }
 
@@ -19,8 +19,8 @@ public class ComponentProject {
         return project;
     }
 
-    public Component getComponent() {
-        return component;
+    public Variant getVariant() {
+        return variant;
     }
 
     @Override
@@ -31,18 +31,18 @@ public class ComponentProject {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ComponentProject that = (ComponentProject) o;
-        return getComponent().equals(that.getComponent()) &&
+        VariantProject that = (VariantProject) o;
+        return getVariant().equals(that.getVariant()) &&
                 getProject().equals(that.getProject());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getComponent(), getProject());
+        return Objects.hash(getVariant(), getProject());
     }
 
     @Override
     public String toString() {
-        return "ComponentProject{" + project + " (" + component + ")}";
+        return "VariantProject{" + project + " (" + variant + ")}";
     }
 }

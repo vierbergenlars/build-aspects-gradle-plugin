@@ -1,10 +1,10 @@
-package be.vbgn.gradle.buildaspects.component;
+package be.vbgn.gradle.buildaspects.variant;
 
 import be.vbgn.gradle.buildaspects.aspect.Property;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public interface Component {
+public interface Variant {
 
     List<Property<?>> getProperties();
 

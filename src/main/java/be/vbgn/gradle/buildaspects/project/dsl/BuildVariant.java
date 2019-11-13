@@ -1,7 +1,7 @@
 package be.vbgn.gradle.buildaspects.project.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.Property;
-import be.vbgn.gradle.buildaspects.component.Component;
+import be.vbgn.gradle.buildaspects.variant.Variant;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.ReadOnlyPropertyException;
@@ -9,18 +9,18 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class BuildComponents extends GroovyObjectSupport implements Component {
+public class BuildVariant extends GroovyObjectSupport implements Variant {
 
-    private final Component component;
+    private final Variant variant;
 
     @Inject
-    public BuildComponents(Component component) {
-        this.component = component;
+    public BuildVariant(Variant variant) {
+        this.variant = variant;
     }
 
     @Override
     public List<Property<?>> getProperties() {
-        return component.getProperties();
+        return variant.getProperties();
     }
 
     @Nullable
@@ -30,7 +30,7 @@ public class BuildComponents extends GroovyObjectSupport implements Component {
             return getProperties();
         }
         try {
-            return component.getProperty(name);
+            return variant.getProperty(name);
         } catch (IllegalArgumentException e) {
             throw new MissingPropertyException(name, getClass());
         }

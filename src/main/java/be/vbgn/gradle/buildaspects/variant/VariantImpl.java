@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.component;
+package be.vbgn.gradle.buildaspects.variant;
 
 import be.vbgn.gradle.buildaspects.aspect.Property;
 import java.util.ArrayList;
@@ -9,11 +9,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-public class ComponentImpl implements Component {
+public class VariantImpl implements Variant {
 
     private final List<? extends Property<?>> properties;
 
-    ComponentImpl(List<? extends Property<?>> properties) {
+    VariantImpl(List<? extends Property<?>> properties) {
         this.properties = Objects.requireNonNull(properties);
     }
 
@@ -40,10 +40,10 @@ public class ComponentImpl implements Component {
                 .collect(Collectors.toMap(Property::getName, Property::getValue)));
     }
 
-    ComponentImpl withProperty(Property<?> property) {
+    VariantImpl withProperty(Property<?> property) {
         List<Property<?>> properties = new ArrayList<>(this.properties);
         properties.add(property);
-        return new ComponentImpl(properties);
+        return new VariantImpl(properties);
     }
 
     @Override
@@ -54,8 +54,8 @@ public class ComponentImpl implements Component {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ComponentImpl component = (ComponentImpl) o;
-        return getProperties().equals(component.getProperties());
+        VariantImpl variant = (VariantImpl) o;
+        return getProperties().equals(variant.getProperties());
     }
 
     @Override
@@ -65,6 +65,6 @@ public class ComponentImpl implements Component {
 
     @Override
     public String toString() {
-        return "Component" + toMap();
+        return "Variant" + toMap();
     }
 }

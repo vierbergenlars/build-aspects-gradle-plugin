@@ -8,31 +8,31 @@ import org.gradle.api.initialization.ProjectDescriptor;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class DefaultComponentProjectNamerTest {
+public class DefaultVariantProjectNamerTest {
 
     @Test
     public void determineName() {
-        DefaultComponentProjectNamer namer = new DefaultComponentProjectNamer();
+        DefaultVariantProjectNamer namer = new DefaultVariantProjectNamer();
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
-        ParentComponentProjectDescriptor parentComponentProjectDescriptor = new ParentComponentProjectDescriptor(
+        ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
                 projectDescriptor,
-                TestUtil.createComponent(Collections.singletonMap("aspect1", "value1")));
+                TestUtil.createVariant(Collections.singletonMap("aspect1", "value1")));
         Mockito.when(projectDescriptor.getName()).thenReturn("projectA");
-        String generatedName = namer.determineName(parentComponentProjectDescriptor);
+        String generatedName = namer.determineName(parentVariantProjectDescriptor);
 
         assertEquals("projectA-aspect1-value1", generatedName);
     }
 
     @Test
     public void determineNameMultipleComponents() {
-        DefaultComponentProjectNamer namer = new DefaultComponentProjectNamer();
+        DefaultVariantProjectNamer namer = new DefaultVariantProjectNamer();
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
-        ParentComponentProjectDescriptor parentComponentProjectDescriptor = new ParentComponentProjectDescriptor(
+        ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
                 projectDescriptor,
-                TestUtil.createComponent(Collections.singletonMap("aspect1", "value1"),
+                TestUtil.createVariant(Collections.singletonMap("aspect1", "value1"),
                         Collections.singletonMap("aspect2", "value2")));
         Mockito.when(projectDescriptor.getName()).thenReturn("projectA");
-        String generatedName = namer.determineName(parentComponentProjectDescriptor);
+        String generatedName = namer.determineName(parentVariantProjectDescriptor);
 
         assertEquals("projectA-aspect1-value1-aspect2-value2", generatedName);
     }

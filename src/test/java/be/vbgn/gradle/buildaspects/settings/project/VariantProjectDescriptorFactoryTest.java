@@ -3,19 +3,19 @@ package be.vbgn.gradle.buildaspects.settings.project;
 import static org.junit.Assert.assertEquals;
 
 import be.vbgn.gradle.buildaspects.TestUtil;
-import be.vbgn.gradle.buildaspects.component.Component;
+import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.Collections;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ComponentProjectDescriptorFactoryTest {
+public class VariantProjectDescriptorFactoryTest {
 
     @Test
     public void createProject() {
         Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
-        ComponentProjectDescriptorFactory factory = new ComponentProjectDescriptorFactory(settings,
+        VariantProjectDescriptorFactory factory = new VariantProjectDescriptorFactory(settings,
                 p -> "createdProject");
         ProjectDescriptor createdProject = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
         Mockito.when(settings.project(":projectA:createdProject")).thenReturn(createdProject);
@@ -23,21 +23,21 @@ public class ComponentProjectDescriptorFactoryTest {
         Mockito.when(projectA.getName()).thenReturn("projectA");
         Mockito.when(projectA.getPath()).thenReturn(":projectA");
 
-        Component component = TestUtil.createComponent(Collections.singletonMap("aspect1", "value1"));
+        Variant variant = TestUtil.createVariant(Collections.singletonMap("aspect1", "value1"));
 
-        ComponentProjectDescriptor componentProjectDescriptor = factory.createProject(projectA, component);
+        VariantProjectDescriptor variantProjectDescriptor = factory.createProject(projectA, variant);
 
         Mockito.verify(settings).include(":projectA:createdProject");
 
-        assertEquals(createdProject, componentProjectDescriptor.getProjectDescriptor());
-        assertEquals(projectA, componentProjectDescriptor.getParentProjectDescriptor());
-        assertEquals(component, componentProjectDescriptor.getComponent());
+        assertEquals(createdProject, variantProjectDescriptor.getProjectDescriptor());
+        assertEquals(projectA, variantProjectDescriptor.getParentProjectDescriptor());
+        assertEquals(variant, variantProjectDescriptor.getVariant());
     }
 
     @Test
     public void createProjectFromRootProject() {
         Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
-        ComponentProjectDescriptorFactory factory = new ComponentProjectDescriptorFactory(settings,
+        VariantProjectDescriptorFactory factory = new VariantProjectDescriptorFactory(settings,
                 p -> "createdProject");
         ProjectDescriptor createdProject = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
         Mockito.when(settings.project(":createdProject")).thenReturn(createdProject);
@@ -45,14 +45,14 @@ public class ComponentProjectDescriptorFactoryTest {
         Mockito.when(projectA.getName()).thenReturn("projectRoot");
         Mockito.when(projectA.getPath()).thenReturn(":");
 
-        Component component = TestUtil.createComponent(Collections.singletonMap("aspect1", "value1"));
+        Variant variant = TestUtil.createVariant(Collections.singletonMap("aspect1", "value1"));
 
-        ComponentProjectDescriptor componentProjectDescriptor = factory.createProject(projectA, component);
+        VariantProjectDescriptor variantProjectDescriptor = factory.createProject(projectA, variant);
 
         Mockito.verify(settings).include(":createdProject");
 
-        assertEquals(createdProject, componentProjectDescriptor.getProjectDescriptor());
-        assertEquals(projectA, componentProjectDescriptor.getParentProjectDescriptor());
-        assertEquals(component, componentProjectDescriptor.getComponent());
+        assertEquals(createdProject, variantProjectDescriptor.getProjectDescriptor());
+        assertEquals(projectA, variantProjectDescriptor.getParentProjectDescriptor());
+        assertEquals(variant, variantProjectDescriptor.getVariant());
     }
 }

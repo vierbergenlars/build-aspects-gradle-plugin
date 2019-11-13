@@ -1,16 +1,16 @@
 package be.vbgn.gradle.buildaspects.settings.project;
 
-import be.vbgn.gradle.buildaspects.component.Component;
+import be.vbgn.gradle.buildaspects.variant.Variant;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.ProjectDescriptor;
 
-public class ComponentProjectDescriptor extends ParentComponentProjectDescriptor {
+public class VariantProjectDescriptor extends ParentVariantProjectDescriptor {
 
     private final ProjectDescriptor projectDescriptor;
 
-    ComponentProjectDescriptor(ProjectDescriptor parentProjectDescriptor,
-            Component component, ProjectDescriptor projectDescriptor) {
-        super(parentProjectDescriptor, component);
+    VariantProjectDescriptor(ProjectDescriptor parentProjectDescriptor,
+            Variant variant, ProjectDescriptor projectDescriptor) {
+        super(parentProjectDescriptor, variant);
         this.projectDescriptor = projectDescriptor;
     }
 

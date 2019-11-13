@@ -1,14 +1,14 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.component.Component;
-import be.vbgn.gradle.buildaspects.component.ComponentBuilder;
 import be.vbgn.gradle.buildaspects.internal.OnetimeFactory;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptor;
-import be.vbgn.gradle.buildaspects.settings.project.ComponentProjectDescriptorFactory;
-import be.vbgn.gradle.buildaspects.settings.project.DefaultComponentProjectNamer;
-import be.vbgn.gradle.buildaspects.settings.project.ParentComponentProjectDescriptor;
+import be.vbgn.gradle.buildaspects.settings.project.DefaultVariantProjectNamer;
+import be.vbgn.gradle.buildaspects.settings.project.ParentVariantProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
+import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptorFactory;
+import be.vbgn.gradle.buildaspects.variant.Variant;
+import be.vbgn.gradle.buildaspects.variant.VariantBuilder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,36 +25,36 @@ public class BuildAspects {
     private final ProjectHandler projectHandler;
 
 
-    private final Set<ComponentProjectDescriptor> componentProjectDescriptors = new HashSet<>();
-    private final OnetimeFactory<Namer<ParentComponentProjectDescriptor>, ComponentProjectDescriptorFactory> componentProjectBuilderOnetimeFactory;
+    private final Set<VariantProjectDescriptor> variantProjectDescriptors = new HashSet<>();
+    private final OnetimeFactory<Namer<ParentVariantProjectDescriptor>, VariantProjectDescriptorFactory> variantProjectBuilderOnetimeFactory;
 
     @Inject
     public BuildAspects(ObjectFactory objectFactory, Settings settings) {
         this(
                 objectFactory.newInstance(AspectHandler.class),
                 objectFactory.newInstance(ProjectHandler.class, settings),
-                namer -> new ComponentProjectDescriptorFactory(settings, namer)
+                namer -> new VariantProjectDescriptorFactory(settings, namer)
         );
     }
 
     BuildAspects(AspectHandler aspectHandler, ProjectHandler projectHandler,
-            Function<Namer<ParentComponentProjectDescriptor>, ComponentProjectDescriptorFactory> componentProjectFactoryFactory) {
+            Function<Namer<ParentVariantProjectDescriptor>, VariantProjectDescriptorFactory> variantProjectFactoryFactory) {
         this.aspectHandler = aspectHandler;
         this.projectHandler = projectHandler;
-        componentProjectBuilderOnetimeFactory = new OnetimeFactory<>(componentProjectFactoryFactory);
-        componentProjectBuilderOnetimeFactory.setSource(new DefaultComponentProjectNamer());
-        ComponentBuilder componentBuilder = new ComponentBuilder();
+        variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory);
+        variantProjectBuilderOnetimeFactory.setSource(new DefaultVariantProjectNamer());
+        VariantBuilder variantBuilder = new VariantBuilder();
 
-        aspectHandler.aspectAdded(componentBuilder::addAspect);
+        aspectHandler.aspectAdded(variantBuilder::addAspect);
         aspectHandler.aspectAdded(a -> {
             if (!projectHandler.getProjects().isEmpty()) {
                 throw new IllegalStateException("You can not modify aspects after projects have been registered.");
             }
         });
         projectHandler.projectAdded(projectDescriptor -> {
-            for (Component component : componentBuilder.getComponents()) {
-                componentProjectDescriptors
-                        .add(componentProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, component));
+            for (Variant variant : variantBuilder.getVariants()) {
+                variantProjectDescriptors
+                        .add(variantProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, variant));
             }
         });
     }
@@ -75,11 +75,11 @@ public class BuildAspects {
         action.execute(projectHandler);
     }
 
-    public void projectNamer(Namer<ParentComponentProjectDescriptor> namer) {
-        componentProjectBuilderOnetimeFactory.setSource(namer);
+    public void projectNamer(Namer<ParentVariantProjectDescriptor> namer) {
+        variantProjectBuilderOnetimeFactory.setSource(namer);
     }
 
-    public Set<ComponentProjectDescriptor> getComponentProjects() {
-        return Collections.unmodifiableSet(componentProjectDescriptors);
+    public Set<VariantProjectDescriptor> getVariantProjects() {
+        return Collections.unmodifiableSet(variantProjectDescriptors);
     }
 }
