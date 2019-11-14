@@ -80,7 +80,7 @@ public class BuildAspectsTest {
         BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
                 n -> new VariantProjectDescriptorFactory(settings, n));
 
-        buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
+        buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getVariant().getProperty("systemVersion")
                 + "-" + (((boolean) desc.getVariant().getProperty("communityEdition")) ? "community" : "enterprise"));
 
@@ -121,7 +121,7 @@ public class BuildAspectsTest {
             projects.include(":submoduleA");
         });
 
-        buildAspects.projectNamer(desc -> desc.getParentProjectDescriptor().getName()
+        buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getVariant().getProperty("systemVersion")
                 + "-" + (((boolean) desc.getVariant().getProperty("communityEdition")) ? "community" : "enterprise"));
     }

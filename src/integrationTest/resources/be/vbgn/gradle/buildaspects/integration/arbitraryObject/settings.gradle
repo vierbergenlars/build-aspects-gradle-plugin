@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath "be.vbgn.gradle:build-aspects-plugin:${System.getProperty("pluginVersion")}"
+    }
+
+}
+apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
+
+rootProject.name = 'arbitraryObject'
+
+class SystemVersion {
+    final String systemVersion
+    final String databaseVersion
+    SystemVersion(String systemVersion, String databaseVersion) {
+        this.systemVersion = systemVersion
+        this.databaseVersion = databaseVersion
+    }
+    String toString() {
+        return this.systemVersion+"-"+this.databaseVersion;
+    }
+}
+
+buildAspects {
+    aspects {
+        create("systemVersion", SystemVersion) {
+            add(new SystemVersion("1.0", "1.2"))
+            add(new SystemVersion("1.0", "1.3"))
+            add(new SystemVersion("2.0", "1.3"))
+        }
+        create("communityEdition", Boolean, [true, false])
+    }
+    projects {
+        project(':')
+    }
+}

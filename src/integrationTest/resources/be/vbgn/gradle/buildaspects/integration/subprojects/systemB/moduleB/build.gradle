@@ -18,7 +18,7 @@ buildAspects.withVariant("systemVersion", "1.0") {
     assert buildVariant.getProperty("systemVersion") == "1.0"
 }
 
-buildAspects.withVariant("systemVersion", "2.0") {
+buildAspects.when({ it.getProperty("systemVersion") == "2.0" }) {
     assert buildVariant.systemVersion == "2.0"
     try {
         assert buildVariant.nonexistingProperty != null, "Exception should have been thrown for nonexisting property"

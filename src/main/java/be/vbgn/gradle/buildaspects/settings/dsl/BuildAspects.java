@@ -9,6 +9,7 @@ import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptorFactory;
 import be.vbgn.gradle.buildaspects.variant.Variant;
 import be.vbgn.gradle.buildaspects.variant.VariantBuilder;
+import groovy.lang.Closure;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,8 +76,12 @@ public class BuildAspects {
         action.execute(projectHandler);
     }
 
-    public void projectNamer(Namer<ParentVariantProjectDescriptor> namer) {
+    public void setProjectNamer(Namer<ParentVariantProjectDescriptor> namer) {
         variantProjectBuilderOnetimeFactory.setSource(namer);
+    }
+
+    public void setProjectNamer(Closure<String> namer) {
+        setProjectNamer(namer::call);
     }
 
     public Set<VariantProjectDescriptor> getVariantProjects() {

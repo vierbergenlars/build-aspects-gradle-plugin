@@ -64,4 +64,48 @@ public class IntegrationTest extends AbstractIntegrationTest {
         )), projectPaths);
     }
 
+    @Test
+    public void arbitraryObject() throws IOException {
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("arbitraryObject"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":arbitraryObject-systemVersion-1.0-1.2-communityEdition-true",
+                ":arbitraryObject-systemVersion-1.0-1.3-communityEdition-true",
+                ":arbitraryObject-systemVersion-2.0-1.3-communityEdition-true",
+                ":arbitraryObject-systemVersion-1.0-1.2-communityEdition-false",
+                ":arbitraryObject-systemVersion-1.0-1.3-communityEdition-false",
+                ":arbitraryObject-systemVersion-2.0-1.3-communityEdition-false"
+        )), projectPaths);
+    }
+
+    @Test
+    public void projectNamer() throws IOException {
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("projectNamer"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":projectNamer-1.0-community",
+                ":projectNamer-2.0-community",
+                ":projectNamer-1.0-enterprise",
+                ":projectNamer-2.0-enterprise"
+        )), projectPaths);
+    }
+
 }
