@@ -11,28 +11,26 @@ apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
 
 rootProject.name = 'nestedConfiguration'
 
-buildAspects {
-    nested {
-        aspects {
-            create("systemVersion", String) {
-                add("1.0")
-                add("2.0")
-            }
-            create("communityEdition", Boolean, [true, false])
+buildAspects.nested {
+    aspects {
+        create("systemVersion", String) {
+            add("1.0")
+            add("2.0")
         }
-        projects {
-            include(':moduleA')
+        create("communityEdition", Boolean, [true, false])
+    }
+    projects {
+        include(':moduleA')
+    }
+}
+buildAspects.nested {
+    aspects {
+        create("systemVersion", String) {
+            add("2.0")
+            add("2.1")
         }
     }
-    nested {
-        aspects {
-            create("systemVersion", String) {
-                add("2.0")
-                add("2.1")
-            }
-        }
-        projects {
-            include(':moduleB')
-        }
+    projects {
+        include(':moduleB')
     }
 }

@@ -7,34 +7,36 @@ import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
-import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 
 public class BuildAspectsRoot implements BuildAspects {
 
-    private final ObjectFactory objectFactory;
-    private final Settings settings;
     private final BuildAspects rootBuildAspect;
     private final Set<BuildAspects> allBuildAspects = new HashSet<>();
-    private final Set<ProjectDescriptor> registeredProjects = new HashSet<>();
+    private final Set<String> registeredProjects = new HashSet<>();
+    private final Supplier<BuildAspects> buildAspectsFactory;
 
     @Inject
     public BuildAspectsRoot(ObjectFactory objectFactory, Settings settings) {
-        this.objectFactory = objectFactory;
-        this.settings = settings;
+        this(() -> objectFactory.newInstance(BuildAspectsImpl.class, settings));
+    }
+
+    BuildAspectsRoot(Supplier<BuildAspects> buildAspectsFactory) {
+        this.buildAspectsFactory = buildAspectsFactory;
         rootBuildAspect = createBuildAspects();
     }
 
     private BuildAspects createBuildAspects() {
-        BuildAspects buildAspects = objectFactory.newInstance(BuildAspectsImpl.class, settings);
+        BuildAspects buildAspects = buildAspectsFactory.get();
         allBuildAspects.add(buildAspects);
         buildAspects.getProjects().projectAdded(projectDescriptor -> {
-            if (!registeredProjects.add(projectDescriptor)) {
+            if (!registeredProjects.add(projectDescriptor.getPath())) {
                 // Project has already been registered before
                 throw new IllegalArgumentException("The project " + projectDescriptor.getPath()
                         + " has already been registered in an other buildAspects configuration.");
