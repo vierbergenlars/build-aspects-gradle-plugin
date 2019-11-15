@@ -1,4 +1,4 @@
-# Build aspects plugin [![Build Status](https://travis-ci.org/vierbergenlars/build-aspects-gradle-plugin.svg?branch=master)](https://travis-ci.org/vierbergenlars/build-aspects-gradle-plugin) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vierbergenlars_build-aspects-gradle-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=vierbergenlars_build-aspects-gradle-plugin)
+# Build aspects plugin [![Build Status](https://travis-ci.com/vierbergenlars/build-aspects-gradle-plugin.svg?branch=master)](https://travis-ci.com/vierbergenlars/build-aspects-gradle-plugin) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vierbergenlars_build-aspects-gradle-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=vierbergenlars_build-aspects-gradle-plugin)
 
 A gradle plugin that manages different variants for your project.
 
