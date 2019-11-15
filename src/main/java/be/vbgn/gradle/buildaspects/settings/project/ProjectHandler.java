@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.inject.Inject;
 import org.gradle.api.Action;
-import org.gradle.api.UnknownProjectException;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 
@@ -32,7 +31,10 @@ public class ProjectHandler {
     }
 
     public void project(ProjectDescriptor projectDescriptor) {
-        projectDescriptors.add(projectDescriptor);
+        if (!projectDescriptors.add(projectDescriptor)) {
+            throw new IllegalArgumentException(
+                    "The project " + projectDescriptor.getPath() + " has already been registered.");
+        }
         projectAddedDispatcher.fire(projectDescriptor);
     }
 

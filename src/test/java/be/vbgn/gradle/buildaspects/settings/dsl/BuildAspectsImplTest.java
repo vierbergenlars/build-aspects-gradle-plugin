@@ -8,7 +8,7 @@ import org.gradle.api.initialization.Settings;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class BuildAspectsTest {
+public class BuildAspectsImplTest {
 
     private Settings createSettingsMock() {
         Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
@@ -28,7 +28,7 @@ public class BuildAspectsTest {
     public void configureAspectsAndProjects() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+        BuildAspects buildAspects = new BuildAspectsImpl(new AspectHandler(), new ProjectHandler(settings),
                 n -> new VariantProjectDescriptorFactory(settings, n));
 
         buildAspects.aspects(aspects -> {
@@ -60,7 +60,7 @@ public class BuildAspectsTest {
     public void configureProjectsBeforeAspects() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+        BuildAspects buildAspects = new BuildAspectsImpl(new AspectHandler(), new ProjectHandler(settings),
                 n -> new VariantProjectDescriptorFactory(settings, n));
 
         buildAspects.projects(projects -> {
@@ -77,7 +77,7 @@ public class BuildAspectsTest {
     public void configureWithNamer() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+        BuildAspects buildAspects = new BuildAspectsImpl(new AspectHandler(), new ProjectHandler(settings),
                 n -> new VariantProjectDescriptorFactory(settings, n));
 
         buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
@@ -114,7 +114,7 @@ public class BuildAspectsTest {
 
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
+        BuildAspects buildAspects = new BuildAspectsImpl(new AspectHandler(), new ProjectHandler(settings),
                 n -> new VariantProjectDescriptorFactory(settings, n));
 
         buildAspects.projects(projects -> {

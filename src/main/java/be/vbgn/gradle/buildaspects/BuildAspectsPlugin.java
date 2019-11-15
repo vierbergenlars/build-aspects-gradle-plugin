@@ -9,6 +9,7 @@ import be.vbgn.gradle.buildaspects.project.dsl.BuildVariant;
 import be.vbgn.gradle.buildaspects.project.project.VariantProject;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRoot;
 import java.util.Set;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -21,7 +22,7 @@ public class BuildAspectsPlugin implements Plugin<Object> {
 
     public void apply(Settings settings) {
         BuildAspects buildAspects = settings.getExtensions()
-                .create(BUILD_ASPECTS_EXTENSION, BuildAspects.class, settings);
+                .create(BUILD_ASPECTS_EXTENSION, BuildAspectsRoot.class, settings);
         VariantProjectFactory variantProjectFactory = new VariantProjectFactory(
                 buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
