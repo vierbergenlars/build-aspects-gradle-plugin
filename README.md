@@ -4,9 +4,7 @@ A gradle plugin that manages different variants for your project.
 
 <details>
 <summary>
-
-## When do I need this plugin?
-
+When do I need this plugin?
 </summary>
 
 When your `settings.gradle` file looks like this, you might be a developer that maintains an extension for multiple non-backwards compatible versions of a platform.
