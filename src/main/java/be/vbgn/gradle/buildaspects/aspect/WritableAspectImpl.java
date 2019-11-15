@@ -45,7 +45,7 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     }
 
     Aspect<T> frozen() {
-        return new WritableAspectImpl<T>(name, Collections.unmodifiableList(options));
+        return new WritableAspectImpl<>(name, Collections.unmodifiableList(options));
     }
 
 }

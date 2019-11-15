@@ -33,14 +33,14 @@ public class VariantBuilder {
 
 
         public VariantBuilderInternal addAspect(Aspect<?> aspect) {
-            List<VariantImpl> variants = new ArrayList<>(this.variants.size() * aspect.getProperties().size());
-            for (VariantImpl variant : this.variants) {
+            List<VariantImpl> newVariants = new ArrayList<>(variants.size() * aspect.getProperties().size());
+            for (VariantImpl variant : variants) {
                 for (Property<?> property : aspect.getProperties()) {
-                    variants.add(variant.withProperty(property));
+                    newVariants.add(variant.withProperty(property));
                 }
             }
 
-            return new VariantBuilderInternal(variants);
+            return new VariantBuilderInternal(newVariants);
         }
 
         public List<? extends Variant> build() {

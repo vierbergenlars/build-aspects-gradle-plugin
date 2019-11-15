@@ -27,7 +27,7 @@ public class ProjectHandler {
         return Collections.unmodifiableCollection(projectDescriptors);
     }
 
-    public void project(String project) throws UnknownProjectException {
+    public void project(String project) {
         project(settings.project(project));
     }
 

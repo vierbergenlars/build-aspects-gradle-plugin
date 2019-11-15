@@ -41,9 +41,9 @@ public class VariantImpl implements Variant {
     }
 
     VariantImpl withProperty(Property<?> property) {
-        List<Property<?>> properties = new ArrayList<>(this.properties);
-        properties.add(property);
-        return new VariantImpl(properties);
+        List<Property<?>> newProperties = new ArrayList<>(properties);
+        newProperties.add(property);
+        return new VariantImpl(newProperties);
     }
 
     @Override

@@ -16,8 +16,12 @@ import org.gradle.api.initialization.Settings;
 
 public class BuildAspectsPlugin implements Plugin<Object> {
 
+    private static final String BUILD_ASPECTS_EXTENSION = "buildAspects";
+    private static final String BUILD_VARIANT_EXTENSION = "buildVariant";
+
     public void apply(Settings settings) {
-        BuildAspects buildAspects = settings.getExtensions().create("buildAspects", BuildAspects.class, settings);
+        BuildAspects buildAspects = settings.getExtensions()
+                .create(BUILD_ASPECTS_EXTENSION, BuildAspects.class, settings);
         VariantProjectFactory variantProjectFactory = new VariantProjectFactory(
                 buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
@@ -25,9 +29,9 @@ public class BuildAspectsPlugin implements Plugin<Object> {
             variantProjectFactory.createVariantProject(project)
                     .ifPresent(vp -> {
                         project.getExtensions()
-                                .add("buildVariant", new BuildVariant(vp.getVariant()));
+                                .add(BUILD_VARIANT_EXTENSION, new BuildVariant(vp.getVariant()));
                         project.getExtensions()
-                                .create("buildAspects", BuildAspectsLeaf.class, project, vp.getVariant());
+                                .create(BUILD_ASPECTS_EXTENSION, BuildAspectsLeaf.class, project, vp.getVariant());
                         project.getPluginManager().apply(getClass());
                     });
 
@@ -35,7 +39,7 @@ public class BuildAspectsPlugin implements Plugin<Object> {
             Set<VariantProject> variantProjects = variantProjectFactory.createVariantProjectsForParent(project);
             if (!variantProjects.isEmpty()) {
                 project.getExtensions()
-                        .create("buildAspects", BuildAspectsParent.class, project, variantProjects);
+                        .create(BUILD_ASPECTS_EXTENSION, BuildAspectsParent.class, project, variantProjects);
                 project.getPluginManager().apply(getClass());
             }
 
@@ -43,7 +47,7 @@ public class BuildAspectsPlugin implements Plugin<Object> {
     }
 
     public void apply(Project project) {
-        if (project.getExtensions().findByName("buildAspects") == null) {
+        if (project.getExtensions().findByName(BUILD_ASPECTS_EXTENSION) == null) {
             throw new IllegalStateException("This plugin can not be applied to a project manually.");
         }
 

@@ -20,11 +20,9 @@ public class BuildAspectsParent implements BuildAspects {
     }
 
     private void variantProjects(Action<? super VariantProject> configure) {
-        project.subprojects(project1 -> {
-            variantProjects.stream()
-                    .filter(vp -> vp.getProject().equals(project1))
-                    .forEach(configure::execute);
-        });
+        project.subprojects(project1 -> variantProjects.stream()
+                .filter(vp -> vp.getProject().equals(project1))
+                .forEach(configure::execute));
     }
 
     @Override
