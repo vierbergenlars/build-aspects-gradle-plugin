@@ -40,6 +40,31 @@ public class IntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void nestedConfiguration() throws IOException {
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("nestedConfiguration"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":moduleA",
+                ":moduleA:moduleA-systemVersion-1.0-communityEdition-true",
+                ":moduleA:moduleA-systemVersion-2.0-communityEdition-true",
+                ":moduleA:moduleA-systemVersion-1.0-communityEdition-false",
+                ":moduleA:moduleA-systemVersion-2.0-communityEdition-false",
+                ":moduleB",
+                ":moduleB:moduleB-systemVersion-2.0",
+                ":moduleB:moduleB-systemVersion-2.1"
+        )), projectPaths);
+    }
+
+    @Test
     public void subprojects() throws IOException {
 
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("subprojects"))
