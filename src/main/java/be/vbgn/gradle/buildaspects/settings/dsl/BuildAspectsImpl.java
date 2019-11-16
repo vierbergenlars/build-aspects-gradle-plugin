@@ -40,14 +40,14 @@ public class BuildAspectsImpl implements BuildAspects {
             Function<Namer<ParentVariantProjectDescriptor>, VariantProjectDescriptorFactory> variantProjectFactoryFactory) {
         this.aspectHandler = aspectHandler;
         this.projectHandler = projectHandler;
-        variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory);
+        variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory, IllegalBuildAspectsStateException.modifyNamerAfterProjects());
         variantProjectBuilderOnetimeFactory.setSource(new DefaultVariantProjectNamer());
         VariantBuilder variantBuilder = new VariantBuilder();
 
         aspectHandler.aspectAdded(variantBuilder::addAspect);
         aspectHandler.aspectAdded(a -> {
             if (!projectHandler.getProjects().isEmpty()) {
-                throw new IllegalStateException("You can not modify aspects after projects have been registered.");
+                throw IllegalBuildAspectsStateException.modifyAspectsAfterProjects();
             }
         });
         projectHandler.projectAdded(projectDescriptor -> {

@@ -30,7 +30,7 @@ public class AspectHandler {
 
     public <T> Aspect<T> create(String name, Class<T> type, Action<? super WritableAspect<T>> configure) {
         if (!aspectNames.add(name)) {
-            throw new IllegalArgumentException("Duplicate aspect with name " + name);
+            throw DuplicateAspectNameException.forName(name);
         }
         WritableAspectImpl<T> aspect = new WritableAspectImpl<>(name);
         configure.execute(aspect);

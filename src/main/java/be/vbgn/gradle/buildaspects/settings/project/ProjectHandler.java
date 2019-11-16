@@ -32,8 +32,7 @@ public class ProjectHandler {
 
     public void project(ProjectDescriptor projectDescriptor) {
         if (!projectDescriptors.add(projectDescriptor)) {
-            throw new IllegalArgumentException(
-                    "The project " + projectDescriptor.getPath() + " has already been registered.");
+            throw DuplicateProjectException.forProject(projectDescriptor);
         }
         projectAddedDispatcher.fire(projectDescriptor);
     }

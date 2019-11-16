@@ -1,6 +1,7 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
+import be.vbgn.gradle.buildaspects.settings.project.DuplicateProjectException;
 import be.vbgn.gradle.buildaspects.settings.project.ParentVariantProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
@@ -35,17 +36,21 @@ public class BuildAspectsRoot implements BuildAspects {
     }
 
     private BuildAspects createBuildAspects() {
-        if (rootBuildAspect != null && !allBuildAspects.isEmpty()) {
-            throw new IllegalStateException(
-                    "Nested BuildAspects configurations can not be combined with configuration of the root BuildAspects configurations.");
+        if (rootBuildAspect != null) {
+            throw IllegalBuildAspectsStateException.nestedAndRootConfiguration();
         }
+        return createBuildAspectsUnchecked();
+    }
+
+    private BuildAspects createBuildAspectsUnchecked() {
         BuildAspects buildAspects = buildAspectsFactory.get();
         allBuildAspects.add(buildAspects);
         buildAspects.getProjects().projectAdded(projectDescriptor -> {
             if (!registeredProjects.add(projectDescriptor.getPath())) {
                 // Project has already been registered before
-                throw new IllegalArgumentException("The project " + projectDescriptor.getPath()
-                        + " has already been registered in an other buildAspects configuration.");
+                throw new DuplicateProjectException(
+                        "The project has already been registered in an other buildAspects configuration.",
+                        DuplicateProjectException.forProject(projectDescriptor));
             }
         });
         return buildAspects;
@@ -53,6 +58,9 @@ public class BuildAspectsRoot implements BuildAspects {
 
     private BuildAspects createRootBuildAspects() {
         if (rootBuildAspect == null) {
+            if (!allBuildAspects.isEmpty()) {
+                throw IllegalBuildAspectsStateException.nestedAndRootConfiguration();
+            }
             rootBuildAspect = createBuildAspects();
         }
         return rootBuildAspect;

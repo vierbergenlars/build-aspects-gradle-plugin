@@ -1,5 +1,6 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
+import be.vbgn.gradle.buildaspects.settings.project.DuplicateProjectException;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,7 +38,7 @@ public class BuildAspectsRootTest extends BuildAspectsImplTest {
         Mockito.verify(settings).include(":moduleB:moduleB-systemVersion-2.0");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DuplicateProjectException.class)
     public void createNestedDuplicateProject() {
         Settings settings = createSettingsMock();
         BuildAspectsRoot buildAspects = (BuildAspectsRoot) createBuildAspects(settings);
@@ -54,21 +55,25 @@ public class BuildAspectsRootTest extends BuildAspectsImplTest {
 
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void useNestedAndToplevelBuildAspects() {
         Settings settings = createSettingsMock();
         BuildAspectsRoot buildAspects = (BuildAspectsRoot) createBuildAspects(settings);
 
-        buildAspects.nested(buildAspects1 -> {});
-        buildAspects.aspects(aspectHandler -> {});
+        buildAspects.nested(buildAspects1 -> {
+        });
+        buildAspects.aspects(aspectHandler -> {
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void useToplevelAndNestedBuildAspects() {
         Settings settings = createSettingsMock();
         BuildAspectsRoot buildAspects = (BuildAspectsRoot) createBuildAspects(settings);
 
-        buildAspects.aspects(aspectHandler -> {});
-        buildAspects.nested(buildAspects1 -> {});
+        buildAspects.aspects(aspectHandler -> {
+        });
+        buildAspects.nested(buildAspects1 -> {
+        });
     }
 }

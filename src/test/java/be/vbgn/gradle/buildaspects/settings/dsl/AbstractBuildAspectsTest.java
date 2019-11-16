@@ -2,7 +2,6 @@ package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import static org.junit.Assert.assertEquals;
 
-import be.vbgn.gradle.buildaspects.project.project.VariantProject;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -62,7 +61,7 @@ abstract public class AbstractBuildAspectsTest {
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-systemVersion-2.0-communityEdition-false");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void configureProjectsBeforeAspects() {
         Settings settings = createSettingsMock();
 
@@ -113,7 +112,7 @@ abstract public class AbstractBuildAspectsTest {
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-2.0-enterprise");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void configureWithNamerAfterProjects() {
         Settings settings = createSettingsMock();
         BuildAspects buildAspects = createBuildAspects(settings);
