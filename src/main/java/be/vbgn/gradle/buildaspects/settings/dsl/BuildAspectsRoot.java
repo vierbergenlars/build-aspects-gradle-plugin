@@ -48,9 +48,7 @@ public class BuildAspectsRoot implements BuildAspects {
         buildAspects.getProjects().projectAdded(projectDescriptor -> {
             if (!registeredProjects.add(projectDescriptor.getPath())) {
                 // Project has already been registered before
-                throw new DuplicateProjectException(
-                        "The project has already been registered in an other buildAspects configuration.",
-                        DuplicateProjectException.forProject(projectDescriptor));
+                throw DuplicateProjectException.forProjectInOtherBuildAspects(projectDescriptor);
             }
         });
         return buildAspects;

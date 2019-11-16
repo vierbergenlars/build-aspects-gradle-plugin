@@ -1,24 +1,14 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
-public class IllegalBuildAspectsStateException extends IllegalStateException {
+public final class IllegalBuildAspectsStateException extends IllegalStateException {
 
-    public IllegalBuildAspectsStateException() {
-    }
-
-    public IllegalBuildAspectsStateException(String s) {
+    private IllegalBuildAspectsStateException(String s) {
         super(s);
     }
 
-    public IllegalBuildAspectsStateException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public IllegalBuildAspectsStateException(Throwable cause) {
-        super(cause);
-    }
-
     static IllegalBuildAspectsStateException nestedAndRootConfiguration() {
-        return new IllegalBuildAspectsStateException("Nested BuildAspects configurations can not be combined with configuration of the root BuildAspects configurations.");
+        return new IllegalBuildAspectsStateException(
+                "Nested BuildAspects configurations can not be combined with configuration of the root BuildAspects configurations.");
     }
 
     static IllegalBuildAspectsStateException modifyAspectsAfterProjects() {
@@ -26,6 +16,7 @@ public class IllegalBuildAspectsStateException extends IllegalStateException {
     }
 
     static IllegalBuildAspectsStateException modifyNamerAfterProjects() {
-        return new IllegalBuildAspectsStateException("You can not modify the projectNamer after projects have been registered.");
+        return new IllegalBuildAspectsStateException(
+                "You can not modify the projectNamer after projects have been registered.");
     }
 }

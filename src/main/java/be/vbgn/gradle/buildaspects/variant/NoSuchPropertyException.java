@@ -1,20 +1,9 @@
 package be.vbgn.gradle.buildaspects.variant;
 
-public class NoSuchPropertyException extends RuntimeException {
+public final class NoSuchPropertyException extends RuntimeException {
 
-    public NoSuchPropertyException() {
-    }
-
-    public NoSuchPropertyException(String message) {
+    private NoSuchPropertyException(String message) {
         super(message);
-    }
-
-    public NoSuchPropertyException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public NoSuchPropertyException(Throwable cause) {
-        super(cause);
     }
 
     static NoSuchPropertyException forName(String name) {
