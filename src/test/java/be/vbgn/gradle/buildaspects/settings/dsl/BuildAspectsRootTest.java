@@ -53,4 +53,22 @@ public class BuildAspectsRootTest extends BuildAspectsImplTest {
         });
 
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void useNestedAndToplevelBuildAspects() {
+        Settings settings = createSettingsMock();
+        BuildAspectsRoot buildAspects = (BuildAspectsRoot) createBuildAspects(settings);
+
+        buildAspects.nested(buildAspects1 -> {});
+        buildAspects.aspects(aspectHandler -> {});
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void useToplevelAndNestedBuildAspects() {
+        Settings settings = createSettingsMock();
+        BuildAspectsRoot buildAspects = (BuildAspectsRoot) createBuildAspects(settings);
+
+        buildAspects.aspects(aspectHandler -> {});
+        buildAspects.nested(buildAspects1 -> {});
+    }
 }

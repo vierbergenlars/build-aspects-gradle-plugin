@@ -1,14 +1,17 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.internal.LazySet;
 import be.vbgn.gradle.buildaspects.settings.project.ParentVariantProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
@@ -17,7 +20,7 @@ import org.gradle.api.model.ObjectFactory;
 
 public class BuildAspectsRoot implements BuildAspects {
 
-    private final BuildAspects rootBuildAspect;
+    private BuildAspects rootBuildAspect = null;
     private final Set<BuildAspects> allBuildAspects = new HashSet<>();
     private final Set<String> registeredProjects = new HashSet<>();
     private final Supplier<BuildAspects> buildAspectsFactory;
@@ -29,10 +32,13 @@ public class BuildAspectsRoot implements BuildAspects {
 
     BuildAspectsRoot(Supplier<BuildAspects> buildAspectsFactory) {
         this.buildAspectsFactory = buildAspectsFactory;
-        rootBuildAspect = createBuildAspects();
     }
 
     private BuildAspects createBuildAspects() {
+        if (rootBuildAspect != null && !allBuildAspects.isEmpty()) {
+            throw new IllegalStateException(
+                    "Nested BuildAspects configurations can not be combined with configuration of the root BuildAspects configurations.");
+        }
         BuildAspects buildAspects = buildAspectsFactory.get();
         allBuildAspects.add(buildAspects);
         buildAspects.getProjects().projectAdded(projectDescriptor -> {
@@ -45,30 +51,59 @@ public class BuildAspectsRoot implements BuildAspects {
         return buildAspects;
     }
 
+    private BuildAspects createRootBuildAspects() {
+        if (rootBuildAspect == null) {
+            rootBuildAspect = createBuildAspects();
+        }
+        return rootBuildAspect;
+    }
+
     public void nested(Action<? super BuildAspects> action) {
         action.execute(createBuildAspects());
     }
 
     @Override
     public AspectHandler getAspects() {
-        return rootBuildAspect.getAspects();
+        return createRootBuildAspects().getAspects();
     }
 
     @Override
     public ProjectHandler getProjects() {
-        return rootBuildAspect.getProjects();
+        return createRootBuildAspects().getProjects();
     }
 
     @Override
     public void setProjectNamer(Namer<ParentVariantProjectDescriptor> namer) {
-        rootBuildAspect.setProjectNamer(namer);
+        createRootBuildAspects().setProjectNamer(namer);
     }
 
     @Override
     public Set<VariantProjectDescriptor> getVariantProjects() {
-        Set<Set<VariantProjectDescriptor>> variantProjectDescriptors = allBuildAspects.stream()
-                .map(BuildAspects::getVariantProjects)
-                .collect(Collectors.toSet());
-        return new LazySet<>(variantProjectDescriptors);
+        return Collections.unmodifiableSet(new LazyVariantProjectSet(allBuildAspects));
+    }
+
+    private static class LazyVariantProjectSet extends AbstractSet<VariantProjectDescriptor> {
+
+        private final Set<? extends BuildAspects> buildAspects;
+
+        public LazyVariantProjectSet(Set<? extends BuildAspects> buildAspects) {
+            this.buildAspects = buildAspects;
+        }
+
+        private Stream<VariantProjectDescriptor> createProjectDescriptorStream() {
+            return buildAspects.stream()
+                    .map(BuildAspects::getVariantProjects)
+                    .flatMap(Collection::stream);
+        }
+
+        @Override
+        public Iterator<VariantProjectDescriptor> iterator() {
+            return createProjectDescriptorStream().iterator();
+        }
+
+        @Override
+        public int size() {
+            return (int) createProjectDescriptorStream().count();
+        }
     }
 }

@@ -1,5 +1,13 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
+import static org.junit.Assert.assertEquals;
+
+import be.vbgn.gradle.buildaspects.project.project.VariantProject;
+import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;
@@ -107,9 +115,7 @@ abstract public class AbstractBuildAspectsTest {
 
     @Test(expected = IllegalStateException.class)
     public void configureWithNamerAfterProjects() {
-
         Settings settings = createSettingsMock();
-
         BuildAspects buildAspects = createBuildAspects(settings);
 
         buildAspects.projects(projects -> {
@@ -119,6 +125,37 @@ abstract public class AbstractBuildAspectsTest {
         buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getVariant().getProperty("systemVersion")
                 + "-" + (((boolean) desc.getVariant().getProperty("communityEdition")) ? "community" : "enterprise"));
+    }
+
+    @Test
+    public void getVariantProjects() {
+        Settings settings = createSettingsMock();
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        Set<VariantProjectDescriptor> variantProjects = buildAspects.getVariantProjects();
+
+        assertEquals(new HashSet<>(), variantProjects);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA", ":submoduleB");
+        });
+
+        Set<String> variantProjectNames = variantProjects.stream()
+                .map(vp -> vp.getProjectDescriptor().getPath())
+                .collect(Collectors.toSet());
+        assertEquals(new HashSet<>(Arrays.asList(
+                ":submoduleA:submoduleA-systemVersion-1.0",
+                ":submoduleA:submoduleA-systemVersion-2.0",
+                ":submoduleB:submoduleB-systemVersion-1.0",
+                ":submoduleB:submoduleB-systemVersion-2.0"
+        )), variantProjectNames);
+
     }
 
 }
