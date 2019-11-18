@@ -6,6 +6,7 @@ import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
 import groovy.lang.Closure;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
 
@@ -26,7 +27,13 @@ public interface BuildAspects {
     void setProjectNamer(Namer<ParentVariantProjectDescriptor> namer);
 
     default void setProjectNamer(Closure<String> namer) {
-        setProjectNamer(namer::call);
+        setProjectNamer(p -> namer.rehydrate(p, namer.getOwner(), namer.getThisObject()).call(p));
+    }
+
+    void exclude(Predicate<ParentVariantProjectDescriptor> excluder);
+
+    default void exclude(Closure<Boolean> excluder) {
+        exclude(p -> excluder.rehydrate(p, excluder.getOwner(), excluder.getThisObject()).call(p));
     }
 
     Set<VariantProjectDescriptor> getVariantProjects();

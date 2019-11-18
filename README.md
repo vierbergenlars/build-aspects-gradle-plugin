@@ -245,6 +245,19 @@ buildAspects.projects {
 }
 ```
 
+### `buildAspects.exclude {}`
+
+Certain combinations of aspects may not make sense to create. The `buildAspects.exclude {}` predicate allows to skip creation of those projects.
+
+It is possible to use `buildAspects.exclude {}` multiple times. A variant that matches any of these predicates will not be created.
+
+```groovy
+// settings.gradle
+buildAspects.exclude {
+    variant.getProperty("aspectName") == "variant1" && variant.getProperty("systemVersion") == "1.2"
+}
+```
+
 ### `buildAspects.nested {}`
 
 When necessary, it is possible to create multiple, unrelated `buildAspects` configurations using the `buildAspects.nested {}` closure.

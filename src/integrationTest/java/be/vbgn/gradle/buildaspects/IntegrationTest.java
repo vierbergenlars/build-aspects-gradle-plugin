@@ -133,4 +133,24 @@ public class IntegrationTest extends AbstractIntegrationTest {
         )), projectPaths);
     }
 
+    @Test
+    public void exclude() throws IOException {
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve(
+                "exclude"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":exclude-systemVersion-1.0-communityEdition-false",
+                ":exclude-systemVersion-2.0-communityEdition-true"
+        )), projectPaths);
+    }
+
 }

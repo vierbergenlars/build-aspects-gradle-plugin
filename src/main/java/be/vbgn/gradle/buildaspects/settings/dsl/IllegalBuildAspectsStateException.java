@@ -12,11 +12,20 @@ public final class IllegalBuildAspectsStateException extends IllegalStateExcepti
     }
 
     static IllegalBuildAspectsStateException modifyAspectsAfterProjects() {
-        return new IllegalBuildAspectsStateException("You can not modify aspects after projects have been registered.");
+        return modifyAfterProjectsAdded("aspects");
     }
 
     static IllegalBuildAspectsStateException modifyNamerAfterProjects() {
+        return modifyAfterProjectsAdded("projectNamer");
+    }
+
+    static IllegalBuildAspectsStateException modifyExcludeAfterProjects() {
+        return modifyAfterProjectsAdded("exclude");
+    }
+
+    private static IllegalBuildAspectsStateException modifyAfterProjectsAdded(String property) {
         return new IllegalBuildAspectsStateException(
-                "You can not modify the projectNamer after projects have been registered.");
+                "You can not modify \""+property+"\" after projects have been registered.");
+
     }
 }
