@@ -157,4 +157,42 @@ abstract public class AbstractBuildAspectsTest {
 
     }
 
+    @Test
+    public void exclude() {
+        Settings settings = createSettingsMock();
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+            aspects.create("communityEdition", Boolean.class, aspect -> {
+                aspect.add(true);
+                aspect.add(false);
+            });
+        });
+
+        buildAspects.exclude(desc -> desc.getVariant().getProperty("systemVersion").equals("1.0") && desc.getVariant().getProperty("communityEdition").equals(true));
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+        Mockito.verify(settings).include(":submoduleA");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-1.0-communityEdition-false");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-2.0-communityEdition-true");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-2.0-communityEdition-false");
+    }
+
+    @Test(expected = IllegalBuildAspectsStateException.class)
+    public void configureExcludeAfterProjects() {
+        Settings settings = createSettingsMock();
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        buildAspects.exclude(desc -> true);
+    }
+
 }

@@ -17,8 +17,7 @@ public class VariantProjectDescriptorFactory {
     }
 
     public VariantProjectDescriptor createProject(ProjectDescriptor parentDescriptor, Variant variant) {
-        ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
-                parentDescriptor,
+        ParentVariantProjectDescriptor parentVariantProjectDescriptor = createParentProjectDescriptor(parentDescriptor,
                 variant);
         String projectName = projectNamer.determineName(parentVariantProjectDescriptor);
         String projectPath = parentDescriptor.getPath();
@@ -29,6 +28,13 @@ public class VariantProjectDescriptorFactory {
         settings.include(projectPath);
         ProjectDescriptor projectDescriptor = settings.project(projectPath);
         return new VariantProjectDescriptor(parentDescriptor, variant, projectDescriptor);
+    }
+
+    public ParentVariantProjectDescriptor createParentProjectDescriptor(ProjectDescriptor parentDescriptor,
+            Variant variant) {
+        return new ParentVariantProjectDescriptor(
+                parentDescriptor,
+                variant);
     }
 
 }

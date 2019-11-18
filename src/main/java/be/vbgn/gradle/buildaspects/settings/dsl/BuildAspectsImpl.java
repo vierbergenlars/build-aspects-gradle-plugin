@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import org.gradle.api.Namer;
 import org.gradle.api.initialization.Settings;
@@ -23,7 +24,7 @@ public class BuildAspectsImpl implements BuildAspects {
     private final AspectHandler aspectHandler;
     private final ProjectHandler projectHandler;
 
-
+    private Predicate<ParentVariantProjectDescriptor> excluder;
     private final Set<VariantProjectDescriptor> variantProjectDescriptors = new HashSet<>();
     private final OnetimeFactory<Namer<ParentVariantProjectDescriptor>, VariantProjectDescriptorFactory> variantProjectBuilderOnetimeFactory;
 
@@ -40,7 +41,9 @@ public class BuildAspectsImpl implements BuildAspects {
             Function<Namer<ParentVariantProjectDescriptor>, VariantProjectDescriptorFactory> variantProjectFactoryFactory) {
         this.aspectHandler = aspectHandler;
         this.projectHandler = projectHandler;
-        variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory, IllegalBuildAspectsStateException.modifyNamerAfterProjects());
+        excluder = p -> false;
+        variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory,
+                IllegalBuildAspectsStateException.modifyNamerAfterProjects());
         variantProjectBuilderOnetimeFactory.setSource(new DefaultVariantProjectNamer());
         VariantBuilder variantBuilder = new VariantBuilder();
 
@@ -52,8 +55,11 @@ public class BuildAspectsImpl implements BuildAspects {
         });
         projectHandler.projectAdded(projectDescriptor -> {
             for (Variant variant : variantBuilder.getVariants()) {
-                variantProjectDescriptors
-                        .add(variantProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, variant));
+                VariantProjectDescriptorFactory factory = variantProjectBuilderOnetimeFactory.build();
+                if (!excluder.test(factory.createParentProjectDescriptor(projectDescriptor, variant))) {
+                    variantProjectDescriptors
+                            .add(variantProjectBuilderOnetimeFactory.build().createProject(projectDescriptor, variant));
+                }
             }
         });
     }
@@ -71,6 +77,14 @@ public class BuildAspectsImpl implements BuildAspects {
     @Override
     public void setProjectNamer(Namer<ParentVariantProjectDescriptor> namer) {
         variantProjectBuilderOnetimeFactory.setSource(namer);
+    }
+
+    @Override
+    public synchronized void exclude(Predicate<ParentVariantProjectDescriptor> excluder) {
+        if (!getProjects().getProjects().isEmpty()) {
+            throw IllegalBuildAspectsStateException.modifyExcludeAfterProjects();
+        }
+        this.excluder = excluder.or(this.excluder);
     }
 
     @Override

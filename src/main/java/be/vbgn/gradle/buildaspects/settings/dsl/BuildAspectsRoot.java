@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -81,6 +82,11 @@ public class BuildAspectsRoot implements BuildAspects {
     @Override
     public void setProjectNamer(Namer<ParentVariantProjectDescriptor> namer) {
         createRootBuildAspects().setProjectNamer(namer);
+    }
+
+    @Override
+    public void exclude(Predicate<ParentVariantProjectDescriptor> excluder) {
+        createRootBuildAspects().exclude(excluder);
     }
 
     @Override

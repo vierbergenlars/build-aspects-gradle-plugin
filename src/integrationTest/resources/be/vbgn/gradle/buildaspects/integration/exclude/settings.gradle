@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
 
-rootProject.name = 'projectNamer'
+rootProject.name = 'exclude'
 
 buildAspects {
     aspects {
@@ -19,7 +19,8 @@ buildAspects {
         }
         create("communityEdition", Boolean, [true, false])
     }
-    projectNamer = { parentProjectDescriptor.name + "-" + variant.getProperty('systemVersion') +  "-" + (variant.getProperty("communityEdition")?"community":"enterprise")}
+    exclude { variant.getProperty("systemVersion") == "1.0" && variant.getProperty("communityEdition") }
+    exclude { variant.getProperty("systemVersion") == "2.0" && !variant.getProperty("communityEdition") }
     projects {
         project(':')
     }
