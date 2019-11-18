@@ -17,7 +17,8 @@ public class AspectHandler {
 
     private final EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
 
-    public <T> Aspect<T> create(String name, T item0, T... items) {
+    @SafeVarargs
+    public final <T> Aspect<T> create(String name, T item0, T... items) {
         List<T> itemsList = new ArrayList<>(items.length + 1);
         itemsList.add(item0);
         itemsList.addAll(Arrays.asList(items));
@@ -32,7 +33,7 @@ public class AspectHandler {
         if (!aspectNames.add(name)) {
             throw DuplicateAspectNameException.forName(name);
         }
-        WritableAspectImpl<T> aspect = new WritableAspectImpl<>(name);
+        WritableAspectImpl<T> aspect = new WritableAspectImpl<>(name, type);
         configure.execute(aspect);
         Aspect<T> frozenAspect = aspect.frozen();
         aspects.add(frozenAspect);

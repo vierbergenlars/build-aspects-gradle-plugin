@@ -55,4 +55,14 @@ public class AspectHandlerTest {
         aspect.add("xyz");
     }
 
+    @SuppressWarnings("rawtypes")
+    @Test(expected = IllegalArgumentException.class)
+    public void createAspectBadType() {
+        AspectHandler handler = new AspectHandler();
+        handler.create("test1", String.class, a -> {
+            WritableAspect<Object> b = (WritableAspect) a;
+            b.add(1);
+        });
+    }
+
 }
