@@ -23,7 +23,7 @@ public class AspectHandlerTest {
         assertEquals(Arrays.asList(systemVersionAspect, isCommunityAspect), aspects);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DuplicateAspectNameException.class)
     public void createDuplicateAspect() {
         AspectHandler handler = new AspectHandler();
         handler.create("test1", String.class, a -> {

@@ -30,7 +30,7 @@ public class VariantImpl implements Variant {
                 return property.getValue();
             }
         }
-        throw new IllegalArgumentException("A property with name '" + name + "' does not exist.");
+        throw NoSuchPropertyException.forName(name);
     }
 
     @Nullable

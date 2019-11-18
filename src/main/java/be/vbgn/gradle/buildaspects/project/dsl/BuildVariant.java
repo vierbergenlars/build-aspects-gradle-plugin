@@ -1,6 +1,7 @@
 package be.vbgn.gradle.buildaspects.project.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.Property;
+import be.vbgn.gradle.buildaspects.variant.NoSuchPropertyException;
 import be.vbgn.gradle.buildaspects.variant.Variant;
 import groovy.lang.GroovyObjectSupport;
 import groovy.lang.MissingPropertyException;
@@ -31,7 +32,7 @@ public class BuildVariant extends GroovyObjectSupport implements Variant {
         }
         try {
             return variant.getProperty(name);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchPropertyException e) {
             throw new MissingPropertyException(name, getClass());
         }
     }

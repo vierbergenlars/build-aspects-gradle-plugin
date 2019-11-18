@@ -13,8 +13,15 @@ public class OnetimeFactory<S, R> {
     @Nullable
     private Function<S, R> factory;
 
-    public OnetimeFactory(Function<S, R> factory) {
+    private final RuntimeException frozenException;
+
+    public OnetimeFactory(Function<S, R> factory, RuntimeException frozenException) {
         this.factory = Objects.requireNonNull(factory, "factory");
+        this.frozenException = Objects.requireNonNull(frozenException, "frozenException");
+    }
+
+    public OnetimeFactory(Function<S, R> factory) {
+        this(factory, new IllegalStateException("Source object can not be reassigned after result has been built."));
     }
 
     private void freeze() {
@@ -24,7 +31,7 @@ public class OnetimeFactory<S, R> {
 
     private void checkNotFrozen() {
         if (factory == null) {
-            throw new IllegalStateException("Source object can not be reassigned after result has been built.");
+            throw frozenException;
         }
     }
 
@@ -40,7 +47,7 @@ public class OnetimeFactory<S, R> {
             result = factory.apply(source);
             freeze();
         }
-        return result;
+        return Objects.requireNonNull(result);
     }
 
 }

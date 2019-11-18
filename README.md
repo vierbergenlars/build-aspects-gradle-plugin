@@ -240,8 +240,38 @@ This will first include the project in the build and then register it with this 
 
 ```groovy
 // settings.gradle
-buildAspects.projects{
+buildAspects.projects {
     include ':moduleA'
+}
+```
+
+### `buildAspects.nested {}`
+
+When necessary, it is possible to create multiple, unrelated `buildAspects` configurations using the `buildAspects.nested {}` closure.
+Every invocation of the closure creates a new `buildAspects` object, allowing you to create multiple distinct configurations.
+
+Note that every project can only be registered with one `buildAspects` configuration.
+The `buildAspects.nested {}` closure is only available on the root `buildAspects` configuration, and can not be nested themselves.
+
+```groovy
+// settings.gradle
+buildAspects.nested {
+    aspects {
+        create("systemVersion", "1.0", "2.0") 
+        create("communityEdition", true, false) 
+    }
+    projects {
+        include(':moduleA')
+    }
+}
+
+buildAspects.nested {
+    aspects {
+        create("systemVersion", "2.0", "2.1") 
+    }
+    projects {
+        include(':moduleB')
+    }
 }
 ```
 

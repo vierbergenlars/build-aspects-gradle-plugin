@@ -1,16 +1,20 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
-import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
-import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
-import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptorFactory;
+import static org.junit.Assert.assertEquals;
+
+import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class BuildAspectsTest {
+abstract public class AbstractBuildAspectsTest {
 
-    private Settings createSettingsMock() {
+    protected Settings createSettingsMock() {
         Settings settings = Mockito.mock(Settings.class, Mockito.RETURNS_SMART_NULLS);
 
         Mockito.when(settings.project(Mockito.anyString())).then(q -> {
@@ -24,12 +28,13 @@ public class BuildAspectsTest {
         return settings;
     }
 
+    protected abstract BuildAspects createBuildAspects(Settings settings);
+
     @Test
     public void configureAspectsAndProjects() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new VariantProjectDescriptorFactory(settings, n));
+        BuildAspects buildAspects = createBuildAspects(settings);
 
         buildAspects.aspects(aspects -> {
             aspects.create("systemVersion", String.class, aspect -> {
@@ -56,12 +61,11 @@ public class BuildAspectsTest {
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-systemVersion-2.0-communityEdition-false");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void configureProjectsBeforeAspects() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new VariantProjectDescriptorFactory(settings, n));
+        BuildAspects buildAspects = createBuildAspects(settings);
 
         buildAspects.projects(projects -> {
             projects.include(":submoduleA");
@@ -77,8 +81,7 @@ public class BuildAspectsTest {
     public void configureWithNamer() {
         Settings settings = createSettingsMock();
 
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new VariantProjectDescriptorFactory(settings, n));
+        BuildAspects buildAspects = createBuildAspects(settings);
 
         buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getVariant().getProperty("systemVersion")
@@ -109,13 +112,10 @@ public class BuildAspectsTest {
         Mockito.verify(settings).include(":systemB:submoduleB:submoduleB-2.0-enterprise");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalBuildAspectsStateException.class)
     public void configureWithNamerAfterProjects() {
-
         Settings settings = createSettingsMock();
-
-        BuildAspects buildAspects = new BuildAspects(new AspectHandler(), new ProjectHandler(settings),
-                n -> new VariantProjectDescriptorFactory(settings, n));
+        BuildAspects buildAspects = createBuildAspects(settings);
 
         buildAspects.projects(projects -> {
             projects.include(":submoduleA");
@@ -124,6 +124,37 @@ public class BuildAspectsTest {
         buildAspects.setProjectNamer(desc -> desc.getParentProjectDescriptor().getName()
                 + "-" + desc.getVariant().getProperty("systemVersion")
                 + "-" + (((boolean) desc.getVariant().getProperty("communityEdition")) ? "community" : "enterprise"));
+    }
+
+    @Test
+    public void getVariantProjects() {
+        Settings settings = createSettingsMock();
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        Set<VariantProjectDescriptor> variantProjects = buildAspects.getVariantProjects();
+
+        assertEquals(new HashSet<>(), variantProjects);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA", ":submoduleB");
+        });
+
+        Set<String> variantProjectNames = variantProjects.stream()
+                .map(vp -> vp.getProjectDescriptor().getPath())
+                .collect(Collectors.toSet());
+        assertEquals(new HashSet<>(Arrays.asList(
+                ":submoduleA:submoduleA-systemVersion-1.0",
+                ":submoduleA:submoduleA-systemVersion-2.0",
+                ":submoduleB:submoduleB-systemVersion-1.0",
+                ":submoduleB:submoduleB-systemVersion-2.0"
+        )), variantProjectNames);
+
     }
 
 }
