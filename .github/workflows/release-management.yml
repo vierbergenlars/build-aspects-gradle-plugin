@@ -5,7 +5,7 @@ on:
             - master
 jobs:
     update-draft-release:
-        runs_on: ubuntu-latest
+        runs-on: ubuntu-latest
         steps:
             - name: Release Drafter
               uses: toolmantim/release-drafter@v5.2.0
