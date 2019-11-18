@@ -9,15 +9,17 @@ import java.util.stream.Collectors;
 class WritableAspectImpl<T> implements WritableAspect<T> {
 
     private final String name;
+    private final Class<T> type;
 
     private final List<T> options;
 
-    WritableAspectImpl(String name) {
-        this(name, new ArrayList<>());
+    WritableAspectImpl(String name, Class<T> type) {
+        this(name, type, new ArrayList<>());
     }
 
-    private WritableAspectImpl(String name, List<T> options) {
+    private WritableAspectImpl(String name, Class<T> type, List<T> options) {
         this.name = name;
+        this.type = type;
         this.options = options;
     }
 
@@ -33,6 +35,9 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
 
     @Override
     public WritableAspect<T> add(T option) {
+        if (!type.isInstance(option)) {
+            throw new IllegalArgumentException("Options for aspect "+name+" must be of "+type.toGenericString());
+        }
         options.add(option);
         return this;
     }
@@ -45,7 +50,7 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     }
 
     Aspect<T> frozen() {
-        return new WritableAspectImpl<>(name, Collections.unmodifiableList(options));
+        return new WritableAspectImpl<>(name, type, Collections.unmodifiableList(options));
     }
 
 }
