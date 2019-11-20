@@ -18,7 +18,7 @@ import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class VariantProjectFactoryTest {
+public class VariantProjectFactoryImplTest {
 
     private ProjectDescriptor createProjectDescriptor(String path) {
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
@@ -46,7 +46,7 @@ public class VariantProjectFactoryTest {
         variantProjectDescriptors.add(createVariantProjectDescriptor(":projectA:projectA-d",
                 TestUtil.createVariant(Collections.singletonMap("systemVersion", "2.0"))));
 
-        VariantProjectFactory variantProjectFactory = new VariantProjectFactory(variantProjectDescriptors);
+        VariantProjectFactory variantProjectFactory = new VariantProjectFactoryImpl(variantProjectDescriptors);
 
         Project rootProject = ProjectBuilder.builder()
                 .withName(":")
@@ -81,7 +81,7 @@ public class VariantProjectFactoryTest {
         variantProjectDescriptors.add(createVariantProjectDescriptor(":projectB:projectB-c",
                 TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"))));
 
-        VariantProjectFactory variantProjectFactory = new VariantProjectFactory(variantProjectDescriptors);
+        VariantProjectFactory variantProjectFactory = new VariantProjectFactoryImpl(variantProjectDescriptors);
 
         Project rootProject = ProjectBuilder.builder()
                 .withName(":")
@@ -102,9 +102,9 @@ public class VariantProjectFactoryTest {
         Set<VariantProject> variantProjects = variantProjectFactory.createVariantProjectsForParent(projectA);
 
         assertEquals(new HashSet<>(Arrays.asList(
-                new VariantProject(projectAC,
+                new VariantProjectImpl(projectAC,
                         TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"))),
-                new VariantProject(projectAD,
+                new VariantProjectImpl(projectAD,
                         TestUtil.createVariant(Collections.singletonMap("systemVersion", "2.0")))
         )), variantProjects);
 
