@@ -17,3 +17,14 @@ afterEvaluate {
     assert system1ProjectCalled
     assert !system3ProjectCalled
 }
+
+buildAspects.subprojects {
+    def siblingProject = findProject(":systemB:moduleB", buildVariant);
+    assert siblingProject != null
+    assert siblingProject.buildVariant.properties == buildVariant.properties
+}
+
+buildAspects.withVariant("systemVersion", "1.0") {
+    assert findProject(':systemB:moduleB', buildVariant).path == ":systemB:moduleB:moduleB-systemVersion-1.0"
+    assert variantTask(':systemB:moduleB', buildVariant, 'clean') == ":systemB:moduleB:moduleB-systemVersion-1.0:clean"
+}

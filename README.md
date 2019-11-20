@@ -340,4 +340,43 @@ buildAspects.subprojects {
 }
 ```
 
+### `Project` extensions API
 
+The plugin adds extra convention methods to the `Project` object of every project in the build.
+These methods help to navigate variant projects more easily.
+
+#### `findProject(String, Variant)`
+
+Next to the builtin Gradle [`Project#findProject(String)`](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#findProject-java.lang.String-) method,
+an extra method is added to find a build variant sub-project.
+
+The first argument is the path to the base project that is registered with the `buildAspects` settings.
+The second argument is a `Variant` instance that specifies which sub-project to select.
+At the moment, it is not possible to create `Variant`s yourself, but you can use the exposed `buildVariant` object to find a project that matches the build variant of your project.
+
+```groovy
+// build.gradle
+buildAspects.subprojects {
+    def moduleA = findProject(":moduleA", buildVariant)
+}
+```
+
+### `project(String, Variant)`
+
+This method is an extension of the builtin [`Project#project(String)`](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#project-java.lang.String-) method.
+It works in the same way as `#findProject(String, Variant)`, but throws an exception when a project is not found instead of returning null.
+
+### `variantTask(String, Variant, String)`
+
+The `variantTask` method makes it easy to create a reference to a task in a variant project.
+
+The first 2 arguments are used to resolve the project using `#project(String, Variant)`.
+The 3rd arguments is the name of the task.
+
+```groovy
+// build.gradle
+buildAspects.subprojects {
+    // Add a dependency to the check task on the project that matches this buildVariant in :moduleA
+    test.dependsOn(variantTask(":moduleA", buildVariant, "check"))
+}
+```

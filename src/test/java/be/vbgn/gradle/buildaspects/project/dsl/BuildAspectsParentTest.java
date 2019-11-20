@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import be.vbgn.gradle.buildaspects.TestUtil;
 import be.vbgn.gradle.buildaspects.project.project.VariantProject;
+import be.vbgn.gradle.buildaspects.project.project.VariantProjectImpl;
 import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,7 +17,7 @@ import org.mockito.Mockito;
 public class BuildAspectsParentTest {
 
     private VariantProject createVariantProject(Project project, Variant variant) {
-        VariantProject variantProject = Mockito.mock(VariantProject.class, Mockito.RETURNS_SMART_NULLS);
+        VariantProject variantProject = Mockito.mock(VariantProjectImpl.class, Mockito.RETURNS_SMART_NULLS);
         Mockito.when(variantProject.getProject()).thenReturn(project);
         Mockito.when(variantProject.getVariant()).thenReturn(variant);
         return variantProject;

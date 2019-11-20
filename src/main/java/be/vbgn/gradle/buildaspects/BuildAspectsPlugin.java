@@ -6,8 +6,10 @@ package be.vbgn.gradle.buildaspects;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildVariant;
+import be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension;
 import be.vbgn.gradle.buildaspects.project.project.VariantProject;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
+import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactoryImpl;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRoot;
 import java.util.Set;
@@ -19,13 +21,17 @@ public class BuildAspectsPlugin implements Plugin<Object> {
 
     private static final String BUILD_ASPECTS_EXTENSION = "buildAspects";
     private static final String BUILD_VARIANT_EXTENSION = "buildVariant";
+    private static final String BUILD_ASPECTS_CONVENTION = "buildAspects-convention";
 
     public void apply(Settings settings) {
         BuildAspects buildAspects = settings.getExtensions()
                 .create(BUILD_ASPECTS_EXTENSION, BuildAspectsRoot.class, settings);
-        VariantProjectFactory variantProjectFactory = new VariantProjectFactory(
+        VariantProjectFactory variantProjectFactory = new VariantProjectFactoryImpl(
                 buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
+            // Add overload to findProject() and project() methods
+            project.getConvention().getPlugins()
+                    .put(BUILD_ASPECTS_CONVENTION, new ProjectExtension(project, variantProjectFactory));
             // Applies if project is a leaf project
             variantProjectFactory.createVariantProject(project)
                     .ifPresent(vp -> {
