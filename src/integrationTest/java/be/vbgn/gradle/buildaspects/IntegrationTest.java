@@ -3,6 +3,7 @@ package be.vbgn.gradle.buildaspects;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -15,8 +16,16 @@ import org.junit.Test;
 
 public class IntegrationTest extends AbstractIntegrationTest {
 
-    private final Path integrationTests = Paths
-            .get("src/integrationTest/resources/be/vbgn/gradle/buildaspects/integration");
+    private final Path integrationTests;
+
+    {
+        try {
+            integrationTests = Paths.get(getClass().getResource("integration").toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Test
     public void settingsPlugin() throws IOException {
