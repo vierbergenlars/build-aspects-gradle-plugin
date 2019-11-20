@@ -3,7 +3,8 @@ package be.vbgn.gradle.buildaspects.project.dsl;
 import be.vbgn.gradle.buildaspects.project.project.VariantProject;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
 import be.vbgn.gradle.buildaspects.variant.Variant;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.gradle.api.Project;
@@ -26,19 +27,20 @@ public class ProjectExtension {
             return null;
         }
 
-        AtomicBoolean foundProject = new AtomicBoolean(false);
-
-        return variantProjectFactory.createVariantProjectsForParent(parentProject)
+        Set<Project> foundProjects = variantProjectFactory.createVariantProjectsForParent(parentProject)
                 .stream()
                 .filter(variantProject -> variantProject.getVariant().getProperties().equals(variant.getProperties()))
                 .map(VariantProject::getProject)
-                .peek(project -> {
-                    if(foundProject.getAndSet(true)) {
-                        throw new IllegalStateException("Multiple projects found for parent "+parentProject+" and "+variant);
-                    }
-                })
-                .findAny()
-                .orElse(null);
+                .collect(Collectors.toSet());
+
+        switch (foundProjects.size()) {
+            case 0:
+                return null;
+            case 1:
+                return foundProjects.iterator().next();
+            default:
+                throw new IllegalStateException("Multiple projects found for parent "+parentProject+" and "+variant);
+        }
     }
 
     public Project project(String baseProject, Variant variant) {

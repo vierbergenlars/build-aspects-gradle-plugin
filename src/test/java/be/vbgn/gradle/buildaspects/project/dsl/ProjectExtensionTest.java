@@ -91,6 +91,32 @@ public class ProjectExtensionTest {
         assertNull(moduleA3Project);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void findProjectIllegalState() {
+        Variant version1 = TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"));
+        Variant version2 = TestUtil.createVariant(Collections.singletonMap("systemVersion", "2.0"));
+        Project rootProject = ProjectBuilder.builder().build();
+        Project moduleA = ProjectBuilder.builder().withName("moduleA").withParent(rootProject).build();
+        Project moduleA1 = ProjectBuilder.builder().withName("moduleA-1").withParent(moduleA).build();
+        Project moduleA2 = ProjectBuilder.builder().withName("moduleA-2").withParent(moduleA).build();
+        Project moduleB = ProjectBuilder.builder().withName("moduleB").withParent(rootProject).build();
+        Project moduleB1 = ProjectBuilder.builder().withName("moduleB-1").withParent(moduleB).build();
+        Project moduleB1bis = ProjectBuilder.builder().withName("moduleB-1bis").withParent(moduleB).build();
+        Project moduleB2 = ProjectBuilder.builder().withName("moduleB-2").withParent(moduleB).build();
+        Map<Project, Variant> projectVariantMap = new HashMap<>();
+        projectVariantMap.put(moduleA1, version1);
+        projectVariantMap.put(moduleA2, version2);
+        projectVariantMap.put(moduleB1, version1);
+        projectVariantMap.put(moduleB1bis, version1);
+        projectVariantMap.put(moduleB2, version2);
+
+        VariantProjectFactory variantProjectFactory = new VariantProjectFactoryMock(projectVariantMap);
+        ProjectExtension projectExtension = new ProjectExtension(rootProject, variantProjectFactory);
+
+        projectExtension.findProject(":moduleB", version1);
+    }
+
+    @Test
     public void project() {
         Variant version1 = TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"));
         Variant version2 = TestUtil.createVariant(Collections.singletonMap("systemVersion", "2.0"));
