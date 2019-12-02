@@ -36,7 +36,7 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     @Override
     public WritableAspect<T> add(T option) {
         if (!type.isInstance(option)) {
-            throw new IllegalArgumentException("Options for aspect "+name+" must be of "+type.toGenericString());
+            throw new IllegalArgumentException("Options for aspect " + name + " must be of " + type.toGenericString());
         }
         options.add(option);
         return this;
@@ -45,7 +45,7 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     @Override
     public Collection<Property<T>> getProperties() {
         return Collections.unmodifiableList(getOptions().stream()
-                .map(o -> new Property<T>(name, o))
+                .map(o -> new AspectProperty<T>(name, o))
                 .collect(Collectors.toList()));
     }
 
