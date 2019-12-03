@@ -3,6 +3,7 @@ package be.vbgn.gradle.buildaspects.settings.dsl;
 import static org.junit.Assert.assertEquals;
 
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import be.vbgn.gradle.buildaspects.variant.NoSuchPropertyException;
 import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -131,6 +132,25 @@ abstract public class AbstractBuildAspectsTest {
                 variants.get("submoduleA-systemVersion-1.0-communityEdition-false").getProperty("artifact"));
         assertEquals("org.example:system-enterprise:2.0",
                 variants.get("submoduleA-systemVersion-2.0-communityEdition-false").getProperty("artifact"));
+    }
+
+    @Test(expected = NoSuchPropertyException.class)
+    public void configureCalculatedPropertiesCircular() {
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", "1.0", "2.0");
+            aspects.calculated("aspectA", variant -> variant.getProperty("aspectB"));
+            aspects.calculated("aspectB", variant -> variant.getProperty("aspectA"));
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        buildAspects.getVariantProjects();
     }
 
     @Test
