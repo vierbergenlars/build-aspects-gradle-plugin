@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.project.dsl;
+package be.vbgn.gradle.buildaspects.variant;
 
 import be.vbgn.gradle.buildaspects.aspect.Property;
 import be.vbgn.gradle.buildaspects.variant.NoSuchPropertyException;
@@ -10,12 +10,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class BuildVariant extends GroovyObjectSupport implements Variant {
+public class GroovyBuildVariant extends GroovyObjectSupport implements Variant {
 
     private final Variant variant;
 
-    @Inject
-    public BuildVariant(Variant variant) {
+    public GroovyBuildVariant(Variant variant) {
         this.variant = variant;
     }
 

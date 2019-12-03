@@ -31,6 +31,7 @@ buildAspects {
             add(new SystemVersion("2.0", "1.3"))
         }
         create("communityEdition", Boolean, [true, false])
+        calculated("communtiyString") { it.communityEdition?"communtiy": "enterprise"}
     }
     projects {
         project(':')

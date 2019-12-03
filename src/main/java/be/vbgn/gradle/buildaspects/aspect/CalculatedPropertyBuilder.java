@@ -1,5 +1,6 @@
 package be.vbgn.gradle.buildaspects.aspect;
 
+import be.vbgn.gradle.buildaspects.variant.GroovyBuildVariant;
 import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.function.Function;
 
@@ -14,7 +15,7 @@ public class CalculatedPropertyBuilder<T> {
     }
 
     public Property<T> build(Variant variant) {
-        return new PropertyImpl<>(name, calculator.apply(variant));
+        return new PropertyImpl<>(name, calculator.apply(new GroovyBuildVariant(variant)));
     }
 
 }
