@@ -3,13 +3,13 @@ package be.vbgn.gradle.buildaspects.aspect;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
-public class AspectProperty<T> implements Property<T> {
+public class PropertyImpl<T> implements Property<T> {
 
     private final String name;
 
     private final T value;
 
-    AspectProperty(String name, T value) {
+    PropertyImpl(String name, T value) {
         this.name = name;
         this.value = value;
     }

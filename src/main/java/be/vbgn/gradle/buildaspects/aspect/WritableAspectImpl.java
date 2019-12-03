@@ -45,7 +45,7 @@ class WritableAspectImpl<T> implements WritableAspect<T> {
     @Override
     public Collection<Property<T>> getProperties() {
         return Collections.unmodifiableList(getOptions().stream()
-                .map(o -> new AspectProperty<T>(name, o))
+                .map(o -> new PropertyImpl<T>(name, o))
                 .collect(Collectors.toList()));
     }
 

@@ -53,6 +53,7 @@ public class BuildAspectsImpl implements BuildAspects {
                 throw IllegalBuildAspectsStateException.modifyAspectsAfterProjects();
             }
         });
+        aspectHandler.calculatedPropertyAdded(variantBuilder::addCalculatedPropertyBuilder);
         projectHandler.projectAdded(projectDescriptor -> {
             for (Variant variant : variantBuilder.getVariants()) {
                 VariantProjectDescriptorFactory factory = variantProjectBuilderOnetimeFactory.build();
