@@ -44,10 +44,12 @@ public class BuildAspectsImpl implements BuildAspects {
         excluder = p -> false;
         variantProjectBuilderOnetimeFactory = new OnetimeFactory<>(variantProjectFactoryFactory,
                 IllegalBuildAspectsStateException.modifyNamerAfterProjects());
-        variantProjectBuilderOnetimeFactory.setSource(new DefaultVariantProjectNamer());
+        DefaultVariantProjectNamer defaultVariantProjectNamer = new DefaultVariantProjectNamer();
+        variantProjectBuilderOnetimeFactory.setSource(defaultVariantProjectNamer);
         VariantBuilder variantBuilder = new VariantBuilder();
 
         aspectHandler.aspectAdded(variantBuilder::addAspect);
+        aspectHandler.aspectAdded(aspect -> defaultVariantProjectNamer.addUsedProperty(aspect.getName()));
         aspectHandler.aspectAdded(a -> {
             if (!projectHandler.getProjects().isEmpty()) {
                 throw IllegalBuildAspectsStateException.modifyAspectsAfterProjects();
