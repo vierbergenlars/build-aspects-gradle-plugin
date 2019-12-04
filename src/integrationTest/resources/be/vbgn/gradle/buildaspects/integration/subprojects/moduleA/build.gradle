@@ -28,3 +28,7 @@ buildAspects.withVariant("systemVersion", "1.0") {
     assert findProject(':systemB:moduleB', buildVariant).path == ":systemB:moduleB:moduleB-systemVersion-1.0"
     assert variantTask(':systemB:moduleB', buildVariant, 'clean') == ":systemB:moduleB:moduleB-systemVersion-1.0:clean"
 }
+
+buildAspects.subprojects {
+    assert buildVariant.systemVersionFloat == Float.parseFloat(buildVariant.systemVersion)
+}

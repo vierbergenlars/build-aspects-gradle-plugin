@@ -3,8 +3,11 @@ package be.vbgn.gradle.buildaspects.settings.dsl;
 import static org.junit.Assert.assertEquals;
 
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
+import be.vbgn.gradle.buildaspects.variant.NoSuchPropertyException;
+import be.vbgn.gradle.buildaspects.variant.Variant;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.gradle.api.initialization.ProjectDescriptor;
@@ -75,6 +78,79 @@ abstract public class AbstractBuildAspectsTest {
             aspects.create("bla", String.class, aspect -> {
             });
         });
+    }
+
+    @Test
+    public void configureCalculatedProperties() {
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", String.class, aspect -> {
+                aspect.add("1.0").add("2.0");
+            });
+            aspects.create("communityEdition", Boolean.class, aspect -> {
+                aspect.add(true);
+                aspect.add(false);
+            });
+            aspects.calculated("communityString",
+                    variant -> ((Boolean) variant.getProperty("communityEdition")) ? "community" : "enterprise");
+            aspects.calculated("artifact", variant -> String
+                    .format("org.example:system-%s:%s", variant.getProperty("communityString"),
+                            variant.getProperty("systemVersion")));
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        Mockito.verify(settings).include(":submoduleA");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-1.0-communityEdition-true");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-1.0-communityEdition-false");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-2.0-communityEdition-true");
+        Mockito.verify(settings).include(":submoduleA:submoduleA-systemVersion-2.0-communityEdition-false");
+
+        Map<String, ? extends Variant> variants = buildAspects.getVariantProjects()
+                .stream()
+                .collect(Collectors
+                        .toMap(vp -> vp.getProjectDescriptor().getName(), VariantProjectDescriptor::getVariant));
+        assertEquals("community",
+                variants.get("submoduleA-systemVersion-1.0-communityEdition-true").getProperty("communityString"));
+        assertEquals("community",
+                variants.get("submoduleA-systemVersion-2.0-communityEdition-true").getProperty("communityString"));
+        assertEquals("enterprise",
+                variants.get("submoduleA-systemVersion-1.0-communityEdition-false").getProperty("communityString"));
+        assertEquals("enterprise",
+                variants.get("submoduleA-systemVersion-2.0-communityEdition-false").getProperty("communityString"));
+
+        assertEquals("org.example:system-community:1.0",
+                variants.get("submoduleA-systemVersion-1.0-communityEdition-true").getProperty("artifact"));
+        assertEquals("org.example:system-community:2.0",
+                variants.get("submoduleA-systemVersion-2.0-communityEdition-true").getProperty("artifact"));
+        assertEquals("org.example:system-enterprise:1.0",
+                variants.get("submoduleA-systemVersion-1.0-communityEdition-false").getProperty("artifact"));
+        assertEquals("org.example:system-enterprise:2.0",
+                variants.get("submoduleA-systemVersion-2.0-communityEdition-false").getProperty("artifact"));
+    }
+
+    @Test(expected = NoSuchPropertyException.class)
+    public void configureCalculatedPropertiesCircular() {
+        Settings settings = createSettingsMock();
+
+        BuildAspects buildAspects = createBuildAspects(settings);
+
+        buildAspects.aspects(aspects -> {
+            aspects.create("systemVersion", "1.0", "2.0");
+            aspects.calculated("aspectA", variant -> variant.getProperty("aspectB"));
+            aspects.calculated("aspectB", variant -> variant.getProperty("aspectA"));
+        });
+
+        buildAspects.projects(projects -> {
+            projects.include(":submoduleA");
+        });
+
+        buildAspects.getVariantProjects();
     }
 
     @Test
@@ -172,7 +248,8 @@ abstract public class AbstractBuildAspectsTest {
             });
         });
 
-        buildAspects.exclude(desc -> desc.getVariant().getProperty("systemVersion").equals("1.0") && desc.getVariant().getProperty("communityEdition").equals(true));
+        buildAspects.exclude(desc -> desc.getVariant().getProperty("systemVersion").equals("1.0") && desc.getVariant()
+                .getProperty("communityEdition").equals(true));
 
         buildAspects.projects(projects -> {
             projects.include(":submoduleA");
@@ -194,5 +271,6 @@ abstract public class AbstractBuildAspectsTest {
 
         buildAspects.exclude(desc -> true);
     }
+
 
 }

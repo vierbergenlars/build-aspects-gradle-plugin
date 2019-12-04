@@ -5,13 +5,13 @@ package be.vbgn.gradle.buildaspects;
 
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
-import be.vbgn.gradle.buildaspects.project.dsl.BuildVariant;
 import be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension;
 import be.vbgn.gradle.buildaspects.project.project.VariantProject;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactoryImpl;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRoot;
+import be.vbgn.gradle.buildaspects.variant.GroovyBuildVariant;
 import java.util.Set;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -36,7 +36,7 @@ public class BuildAspectsPlugin implements Plugin<Object> {
             variantProjectFactory.createVariantProject(project)
                     .ifPresent(vp -> {
                         project.getExtensions()
-                                .add(BUILD_VARIANT_EXTENSION, new BuildVariant(vp.getVariant()));
+                                .add(BUILD_VARIANT_EXTENSION, new GroovyBuildVariant(vp.getVariant()));
                         project.getExtensions()
                                 .create(BUILD_ASPECTS_EXTENSION, BuildAspectsLeaf.class, project, vp.getVariant());
                         project.getPluginManager().apply(getClass());

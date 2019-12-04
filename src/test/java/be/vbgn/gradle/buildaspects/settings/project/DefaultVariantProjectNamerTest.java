@@ -13,6 +13,7 @@ public class DefaultVariantProjectNamerTest {
     @Test
     public void determineName() {
         DefaultVariantProjectNamer namer = new DefaultVariantProjectNamer();
+        namer.addUsedProperty("aspect1");
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
         ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
                 projectDescriptor,
@@ -26,6 +27,8 @@ public class DefaultVariantProjectNamerTest {
     @Test
     public void determineNameMultipleComponents() {
         DefaultVariantProjectNamer namer = new DefaultVariantProjectNamer();
+        namer.addUsedProperty("aspect1");
+        namer.addUsedProperty("aspect2");
         ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
         ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
                 projectDescriptor,
@@ -35,6 +38,22 @@ public class DefaultVariantProjectNamerTest {
         String generatedName = namer.determineName(parentVariantProjectDescriptor);
 
         assertEquals("projectA-aspect1-value1-aspect2-value2", generatedName);
+    }
+
+    @Test
+    public void determineNameUnlistedComponents() {
+        DefaultVariantProjectNamer namer = new DefaultVariantProjectNamer();
+        namer.addUsedProperty("aspect1");
+        ProjectDescriptor projectDescriptor = Mockito.mock(ProjectDescriptor.class, Mockito.RETURNS_SMART_NULLS);
+        ParentVariantProjectDescriptor parentVariantProjectDescriptor = new ParentVariantProjectDescriptor(
+                projectDescriptor,
+                TestUtil.createVariant(Collections.singletonMap("aspect1", "value1"),
+                        Collections.singletonMap("aspect2", "value2")));
+        Mockito.when(projectDescriptor.getName()).thenReturn("projectA");
+        String generatedName = namer.determineName(parentVariantProjectDescriptor);
+
+        assertEquals("projectA-aspect1-value1", generatedName);
+
     }
 
 }
