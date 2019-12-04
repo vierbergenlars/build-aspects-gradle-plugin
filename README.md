@@ -179,7 +179,7 @@ There are multiple ways to define an aspect's values:
 It is not allowed to create multiple aspects with the same name, and aspects are applied to projects in the same order as they are defined.
 
 Aspect values are not limited to strings, you can use any object as aspect value.
-Your custom class must implement a stable `toString()` method, which is used to generate the sub-project name.
+If you do not configure a custom project namer, your custom class must implement a stable `toString()` method, which is used to generate the sub-project name.
 The object should also be immutable, and should not change after it has been added to an aspect.
 
 <details>
@@ -206,6 +206,45 @@ buildAspects {
             add(new SystemVersion("1.0", "1.3"))
             add(new SystemVersion("2.0", "1.3"))
         }
+    }
+}
+```
+
+</details>
+
+##### Calculated aspects
+
+Advanced users may want to declare additional aspects that are calculated from other aspects.
+These calculated aspects are a linear combination of other aspects and do not result in additional sub-projects being generated.
+Like other aspects, their names must be unique and their values are available everywhere where aspect values are available.
+
+To prevent infinite loops, a calculated aspect is restricted to only access aspects or calculated aspects defined before it.
+
+<details>
+<summary>Example: calculated aspects</summary>
+
+```groovy
+// settings.gradle
+class SystemVersion {
+    final String systemVersion
+    final String databaseVersion
+    SystemVersion(String systemVersion, String databaseVersion) {
+        this.systemVersion = systemVersion
+        this.databaseVersion = databaseVersion
+    }
+    String toString() {
+        return this.systemVersion+"-"+this.databaseVersion;
+    }
+}
+buildAspects {
+    aspects {
+        create("_systemVersion", SystemVersion) {
+            add(new SystemVersion("1.0", "1.2"))
+            add(new SystemVersion("1.0", "1.3"))
+            add(new SystemVersion("2.0", "1.3"))
+        }
+        calculated("systemVersion") { it._systemVersion.systemVersion }
+        calculated("databaseVersion") { it._systemVersion.databaseVersion }
     }
 }
 ```
