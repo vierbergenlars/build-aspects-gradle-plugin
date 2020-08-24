@@ -22,7 +22,7 @@ public abstract class AbstractIntegrationTest {
     @Parameters(name = "Gradle v{0}: {1}-dsl")
     public static Collection<Object[]> testData() {
         String[] gradleVersions = new String[]{
-                "6.4",
+                "6.4.1",
                 "6.3",
                 "6.2.2",
                 "6.1.1",
@@ -64,6 +64,7 @@ public abstract class AbstractIntegrationTest {
     protected GradleRunner createGradleRunner(Path projectFolder) throws IOException {
         if(gradleDsl.equals("kotlin")) {
             assumeTrue("Has kotlin DSL variant", projectFolder.resolve("settings.gradle.kts").toFile().exists());
+            assumeTrue("Kotlin DSL is supported starting from Gradle 6", !gradleVersion.startsWith("5"));
         } else if(gradleDsl.equals("groovy")) {
             assumeTrue("Has groovy DSL variant", projectFolder.resolve("settings.gradle").toFile().exists());
         }
@@ -79,7 +80,6 @@ public abstract class AbstractIntegrationTest {
         });
         GradleRunner gradleRunner = GradleRunner.create()
                 .withProjectDir(testProjectDir.getRoot())
-                .withDebug(true)
                 .forwardOutput();
 
         if (System.getProperty("be.vbgn.gradle.buildaspects.integration.forceCurrentGradleVersion") != null) {
