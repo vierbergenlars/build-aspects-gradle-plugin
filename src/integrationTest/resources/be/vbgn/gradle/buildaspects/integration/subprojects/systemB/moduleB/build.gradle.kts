@@ -14,15 +14,15 @@ subprojects {
 
 buildAspects.withVariant("systemVersion", "1.0") {
     val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
-    assert(buildVariant.getProperty("systemVersion") == "1.0")
-    assert(buildVariant.getProperty("systemVersion") == "1.0")
+    assert(buildVariant.getProperty<String>("systemVersion") == "1.0")
+    assert(buildVariant.getProperty<String>("systemVersion") == "1.0")
 }
 
-buildAspects.withVariant({ it.getProperty("systemVersion") == "2.0" }) {
+buildAspects.withVariant({ it.getProperty<String>("systemVersion") == "2.0" }) {
     val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
-    assert(buildVariant.getProperty("systemVersion") == "2.0")
+    assert(buildVariant.getProperty<String>("systemVersion") == "2.0")
     try {
-        assert(buildVariant.getProperty("nonexistingProperty") != null, {"Exception should have been thrown for nonexisting property"})
+        assert(buildVariant.getProperty<String>("nonexistingProperty") != null, {"Exception should have been thrown for nonexisting property"})
         assert(false, {"Exception should have been thrown for nonexisting property"})
     } catch (_: groovy.lang.MissingPropertyException) {
 

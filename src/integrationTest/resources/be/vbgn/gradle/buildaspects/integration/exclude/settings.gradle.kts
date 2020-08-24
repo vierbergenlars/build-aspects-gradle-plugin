@@ -19,8 +19,8 @@ configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
         }
         create("communityEdition", Boolean::class.javaObjectType, listOf(true, false))
     }
-    exclude { it.variant.getProperty("systemVersion") == "1.0" && it.variant.getProperty("communityEdition") == true }
-    exclude { it.variant.getProperty("systemVersion") == "2.0" && it.variant.getProperty("communityEdition") == false }
+    exclude { it.variant.getProperty<String>("systemVersion") == "1.0" && it.variant.getProperty<Boolean>("communityEdition") == true }
+    exclude { it.variant.getProperty<String>("systemVersion") == "2.0" && it.variant.getProperty<Boolean>("communityEdition") == false }
     projects {
         project(":")
     }

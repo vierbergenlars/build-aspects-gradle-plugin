@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 public class VariantImpl implements Variant {
 
@@ -23,17 +22,16 @@ public class VariantImpl implements Variant {
     }
 
     @Override
-    @Nullable
-    public Object getProperty(String name) {
+    @SuppressWarnings("unchecked")
+    public <T> T getProperty(String name) {
         for (Property<?> property : properties) {
             if (property.getName().equals(name)) {
-                return property.getValue();
+                return (T) property.getValue();
             }
         }
         throw NoSuchPropertyException.forName(name);
     }
 
-    @Nullable
     public Map<String, ?> toMap() {
         return Collections.unmodifiableMap(getProperties()
                 .stream()

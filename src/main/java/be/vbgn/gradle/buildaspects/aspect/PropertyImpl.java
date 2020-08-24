@@ -1,7 +1,6 @@
 package be.vbgn.gradle.buildaspects.aspect;
 
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 public class PropertyImpl<T> implements Property<T> {
 
@@ -21,7 +20,6 @@ public class PropertyImpl<T> implements Property<T> {
     }
 
     @Override
-    @Nullable
     public T getValue() {
         return value;
     }

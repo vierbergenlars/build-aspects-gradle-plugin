@@ -26,7 +26,7 @@ configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
         }
         create("communityEdition", Boolean::class.javaObjectType, listOf(true, false))
         calculated<String>("communtiyString") {
-            when(it.getProperty("communityEdition")) {
+            when(it.getProperty<Boolean>("communityEdition")) {
                 true -> "community"
                 else -> "enterprise"
             }

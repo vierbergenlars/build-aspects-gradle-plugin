@@ -38,5 +38,5 @@ buildAspects.withVariant("systemVersion", "1.0") {
 
 buildAspects.subprojects {
     val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
-    assert(buildVariant.getProperty("systemVersionFloat") == (buildVariant.getProperty("systemVersion") as String).toDouble())
+    assert(buildVariant.getProperty<Double>("systemVersionFloat") == buildVariant.getProperty<String>("systemVersion").toDouble())
 }
