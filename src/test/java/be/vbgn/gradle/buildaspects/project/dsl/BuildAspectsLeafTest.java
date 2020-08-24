@@ -14,34 +14,34 @@ import org.junit.Test;
 public class BuildAspectsLeafTest {
 
     @Test
-    public void when() {
+    public void withVariant() {
         Variant variant = TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"));
         Project project = ProjectBuilder.builder().build();
 
         BuildAspectsLeaf buildAspectsLeaf = new BuildAspectsLeaf(project, variant);
 
-        AtomicBoolean whenCalled = new AtomicBoolean(false);
+        AtomicBoolean withVariantCalled = new AtomicBoolean(false);
 
-        buildAspectsLeaf.when(c -> c.getProperty("systemVersion").equals("1.0"), p -> {
-            whenCalled.set(true);
+        buildAspectsLeaf.withVariant(c -> c.getProperty("systemVersion").equals("1.0"), p -> {
+            withVariantCalled.set(true);
         });
 
-        assertTrue(whenCalled.get());
+        assertTrue(withVariantCalled.get());
     }
 
     @Test
-    public void whenNotCalled() {
+    public void withVariantNotCalled() {
         Variant variant = TestUtil.createVariant(Collections.singletonMap("systemVersion", "1.0"));
         Project project = ProjectBuilder.builder().build();
 
         BuildAspectsLeaf buildAspectsLeaf = new BuildAspectsLeaf(project, variant);
 
-        AtomicBoolean whenCalled = new AtomicBoolean(false);
+        AtomicBoolean withVariantCalled = new AtomicBoolean(false);
 
-        buildAspectsLeaf.when(c -> c.getProperty("systemVersion").equals("2.0"), p -> {
-            whenCalled.set(true);
+        buildAspectsLeaf.withVariant(c -> c.getProperty("systemVersion").equals("2.0"), p -> {
+            withVariantCalled.set(true);
         });
 
-        assertFalse(whenCalled.get());
+        assertFalse(withVariantCalled.get());
     }
 }

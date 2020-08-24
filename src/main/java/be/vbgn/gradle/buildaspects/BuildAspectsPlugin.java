@@ -57,7 +57,6 @@ public class BuildAspectsPlugin implements Plugin<Object> {
         if (project.getExtensions().findByName(BUILD_ASPECTS_EXTENSION) == null) {
             throw new IllegalStateException("This plugin can not be applied to a project manually.");
         }
-
     }
 
     @Override
