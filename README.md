@@ -331,14 +331,14 @@ buildAspects.nested {
 
 The `buildAspects` API is exposed in projects registered with the plugin and in generated sub-projects.
 
-#### `buildAspects.when(Predicate<Variant>) {}`
+#### `buildAspects.withVariant(Predicate<Variant>) {}`
 
-The `when(Predicate<Variant>) {}` closure only executes on the sub-projects for which the predicate function returns true.
+The `withVariant(Predicate<Variant>) {}` closure only executes on the sub-projects for which the predicate function returns true.
 It is an easy way to only apply some configuration only to the variants for which it is applicable.
 
 ```groovy
 // build.gradle
-buildAspects.when({ it.getProperty("aspectName") == "value1"}) {
+buildAspects.withVariant({ it.getProperty("aspectName") == "value1"}) {
     // code to execute only for projects where aspect "aspectName" has value "value1"
     // The context inside this closure is one of the sub-projects that matched the predicate
 }

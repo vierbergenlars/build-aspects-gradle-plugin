@@ -2,8 +2,8 @@ allprojects {
     apply plugin: 'base'
 }
 
-buildAspects.when({ it.getProperty("systemVersion") == "1.0"}) {
-    buildAspects.when({ it.getProperty("communityEdition") == true}) {
+buildAspects.withVariant({ it.getProperty("systemVersion") == "1.0"}) {
+    buildAspects.withVariant({ it.getProperty("communityEdition") == true}) {
         println("systemVersion=${buildVariant.systemVersion}; communityEdition=${buildVariant.communityEdition}");
     }
     println("systemVersion=${buildVariant.systemVersion}")
