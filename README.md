@@ -72,6 +72,20 @@ plugins {
 ```
 
 <details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// settings.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") version "1.0.0" // For latest version, check https://plugins.gradle.org/plugin/be.vbgn.build-aspects
+}
+```
+
+</details>
+
+<details>
 <summary>Gradle 5 syntax</summary>
 
 ```groovy
@@ -83,6 +97,8 @@ buildscript {
 }
 apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
 ```
+
+Kotlin buildscripts are not supported with Gradle 5.
 
 </details>
 
@@ -119,6 +135,36 @@ buildAspects {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// settings.gradle.kts
+include(":projectB")
+configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+    aspects {
+        // Create an aspect by specifying its name and all values
+        create("aspectName", "value1", "value2", "...")
+        // Or create the aspect more dynamically, by specifying its name and type
+        // and then adding values inside a configuration closure
+        create("otherAspect", Boolean) {
+            add(true)
+            add(false)
+        }
+    }
+    projects {
+        // Add an already included project to buildAspects
+        project(':moduleB')
+        // Include a new project in the build and add it to buildAspects
+        include(':moduleA')
+    }
+}
+```
+
+</details>
+
 After applying the plugin in `settings.gradle`, sub-projects will be created.
 Typically, you want to keep those generated sub-projects code-less and configure them from their parent project.
 
@@ -132,6 +178,25 @@ buildAspects.withVariant("aspectName", "value1") {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// moduleA/build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.withVariant("aspectName", "value1") {
+    // The context here is one of your sub-projects for which the aspect "aspectName" is "value1"
+}
+```
+
+</details>
+
+
 You can also get the value of an aspect for a subproject by using the `buildVariant` object.
 
 ```groovy
@@ -140,6 +205,26 @@ buildAspects.subprojects {
     println buildVariant.aspectName // One of "value1", "value2", "..." depending on which subproject you are working on.
 }
 ```
+
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// moduleA/build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.subprojects {
+    val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
+    println(buildVariant.getProperty<String>("aspectName")) // One of "value1", "value2", "..." depending on which subproject you are working on.
+}
+```
+
+</details>
+
 
 ## API
 
@@ -154,27 +239,61 @@ The `buildAspects.aspects {}` closure creates aspects and sets their values.
 There are multiple ways to define an aspect's values:
 
  * Inline as arguments: The aspect name as first argument, followed by all values. In this format, the type is automatically determined.
+
+    Groovy:
     ```groovy
     buildAspects.aspects {
        create("aspectName", "value1", "value2", "...")
     }
     ```
+   Kotlin:
+    ```kotlin
+    buildAspects.aspects {
+       create("aspectName", "value1", "value2", "...")
+    }
+    ```
  * Inline as a list: The aspect name as first argument, followed by the type of the aspect values and then a list of all values.
+
+    Groovy:
     ```groovy
     buildAspects.aspects {
        create("aspectName", String, ["value1", "value2", "..."])
     }
     ```
- * In a closure: The aspect name and type of the aspect values, followed by a closure where values can be added.
-    ```groovy
-   buildAspects.aspects {
-       create("aspectName", String) {
-           add("value1")
-           add("value2")
-           add("...")
+   Kotlin:
+    ```kotlin
+    configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+       aspects {
+           create("aspectName", String::class.java, listOf("value1", "value2", "..."))
        }
    }
     ```
+ * In a closure: The aspect name and type of the aspect values, followed by a closure where values can be added.
+
+    Groovy:
+    ```groovy
+    configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+       aspects {
+           create("aspectName", String) {
+               add("value1")
+               add("value2")
+               add("...")
+           }
+       }
+   }
+    ```
+   Kotlin:
+    ```kotlin
+    configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+       aspects {
+           create("aspectName", String::class.java) {
+               add("value1")
+               add("value2")
+               add("...")
+           }
+       }
+   }
+   ```
 
 It is not allowed to create multiple aspects with the same name, and aspects are applied to projects in the same order as they are defined.
 
@@ -209,6 +328,32 @@ buildAspects {
     }
 }
 ```
+
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// settings.gradle.kts
+class SystemVersion public constructor(val systemVersion: String, val databaseVersion: String) {
+    override fun toString(): String {
+        return systemVersion+"-"+databaseVersion;
+    }
+}
+
+configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+    aspects {
+        create("systemVersion", SystemVersion::class.java) {
+            add(SystemVersion("1.0", "1.2"))
+            add(SystemVersion("1.0", "1.3"))
+            add(SystemVersion("2.0", "1.3"))
+        }
+    }
+}
+```
+
+</details>
 
 </details>
 
@@ -248,6 +393,35 @@ buildAspects {
     }
 }
 ```
+
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// settings.gradle.kts
+
+class SystemVersion public constructor(val systemVersion: String, val databaseVersion: String) {
+    override fun toString(): String {
+        return systemVersion+"-"+databaseVersion;
+    }
+}
+
+configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects> {
+    aspects {
+        create("_systemVersion", SystemVersion::class.java) {
+            add(SystemVersion("1.0", "1.2"))
+            add(SystemVersion("1.0", "1.3"))
+            add(SystemVersion("2.0", "1.3"))
+        }
+        calculated("systemVersion") { it.getProperty<SystemVersion>("_systemVersion").systemVersion }
+        calculated("databaseVersion") { it.getProperty<SystemVersion>("_systemVersion").databaseVersion }
+    }
+}
+```
+
+</details>
 
 </details>
 
@@ -327,6 +501,37 @@ buildAspects.nested {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// settings.gradle.kts
+configure<be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRoot> {
+    nested {
+        aspects {
+            create("systemVersion", "1.0", "2.0")
+            create("communityEdition", true, false)
+        }
+        projects {
+            include(":moduleA")
+        }
+    }
+    nested {
+        aspects {
+            create("systemVersion", "2.0", "2.1")
+       }
+        projects {
+            include(":moduleB")
+        }
+    }
+}
+```
+
+</details>
+
+
 ### `Project` `buildAspects` API
 
 The `buildAspects` API is exposed in projects registered with the plugin and in generated sub-projects.
@@ -344,6 +549,25 @@ buildAspects.withVariant({ it.getProperty("aspectName") == "value1"}) {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.withVariant({ it.getProperty<String>("aspectName") == "value1"}) {
+    // code to execute only for projects where aspect "aspectName" has value "value1"
+    // The context inside this closure is one of the sub-projects that matched the predicate
+}
+```
+
+</details>
+
 #### `buildAspects.withVariant(String, Object) {}`
 
 This closure is a specialized version of the `when(Predicate) {}` closure that will only execute its closure on sub-projects where a variant has a certain value.
@@ -356,6 +580,25 @@ buildAspects.withVariant("aspectName", "value1") {
     // The context inside this closure is one of the sub-projects that matched the predicate
 }
 ```
+
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.withVariant("aspectName", "value1") {
+    // code to execute only for projects where aspect "aspectName" has value "value1"
+    // The context inside this closure is one of the sub-projects that matched the predicate
+}
+```
+
+</details>
 
 #### `buildAspects.subprojects {}`
 
@@ -379,6 +622,27 @@ buildAspects.subprojects {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.subprojects {
+    val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
+    if(buildVariant.aspectName == "value1") {
+        // So something with this sub-project
+    }
+}
+```
+
+</details>
+
 ### `Project` extensions API
 
 The plugin adds extra convention methods to the `Project` object of every project in the build.
@@ -400,6 +664,26 @@ buildAspects.subprojects {
 }
 ```
 
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.subprojects {
+    val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
+    val projectExt = the<be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension>();
+    val moduleA = projectExt.findProject(":moduleA", buildVariant)
+}
+```
+
+</details>
+
 ### `project(String, Variant)`
 
 This method is an extension of the builtin [`Project#project(String)`](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#project-java.lang.String-) method.
@@ -419,3 +703,23 @@ buildAspects.subprojects {
     test.dependsOn(variantTask(":moduleA", buildVariant, "check"))
 }
 ```
+
+<details>
+<summary>
+Kotlin
+</summary>
+
+```kotlin
+// build.gradle.kts
+plugins {
+    id("be.vbgn.build-aspects") // Note: no version here
+}
+
+buildAspects.subprojects {
+    val buildVariant = the<be.vbgn.gradle.buildaspects.variant.Variant>();
+    val projectExt = the<be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension>();
+    val moduleA = projectExt.variantTask(":moduleA", buildVariant, "check")
+}
+```
+
+</details>
