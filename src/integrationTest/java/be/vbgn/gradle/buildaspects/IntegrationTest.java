@@ -1,6 +1,7 @@
 package be.vbgn.gradle.buildaspects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -160,6 +161,34 @@ public class IntegrationTest extends AbstractIntegrationTest {
                 ":exclude-systemVersion-1.0-communityEdition-false",
                 ":exclude-systemVersion-2.0-communityEdition-true"
         )), projectPaths);
+    }
+
+    @Test
+    public void nestedWhen() throws IOException {
+
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve(
+                "nestedWhen"))
+                .withArguments("clean")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":nestedWhen-systemVersion-1.0-communityEdition-true",
+                ":nestedWhen-systemVersion-2.0-communityEdition-true",
+                ":nestedWhen-systemVersion-1.0-communityEdition-false",
+                ":nestedWhen-systemVersion-2.0-communityEdition-false"
+        )), projectPaths);
+
+        final String expectedContent = "systemVersion=1.0; communityEdition=true";
+        assertTrue("Subproject configuration runs once", buildResult.getOutput().contains(expectedContent));
+        assertEquals("Subproject configuration is only run once", buildResult.getOutput().indexOf(expectedContent),
+                buildResult.getOutput().lastIndexOf(expectedContent));
     }
 
 }
