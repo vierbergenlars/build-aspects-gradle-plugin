@@ -82,7 +82,7 @@ public abstract class AbstractIntegrationTest {
                 .withProjectDir(testProjectDir.getRoot())
                 .forwardOutput();
 
-        if (System.getProperty("be.vbgn.gradle.buildaspects.integration.forceCurrentGradleVersion") != null) {
+        if (System.getProperty("be.vbgn.gradle.buildaspects.integration.forceCurrentGradleVersion") == null) {
             gradleRunner.withGradleVersion(gradleVersion);
         }
 
