@@ -28,7 +28,7 @@ configurations {
 dependencies {
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.mockito:mockito-core:3.5.10'
-    integrationTestImplementation 'commons-io:commons-io:2.7'
+    integrationTestImplementation 'commons-io:commons-io:2.8.0'
 }
 
 gradlePlugin {
