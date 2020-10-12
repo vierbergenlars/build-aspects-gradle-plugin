@@ -26,7 +26,7 @@ configurations {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:3.5.13'
     integrationTestImplementation 'commons-io:commons-io:2.8.0'
 }
