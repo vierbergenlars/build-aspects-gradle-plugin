@@ -9,8 +9,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
+import org.gradle.api.plugins.ExtensionAware;
 
-public interface BuildAspects {
+public interface BuildAspects extends ExtensionAware {
 
     AspectHandler getAspects();
 

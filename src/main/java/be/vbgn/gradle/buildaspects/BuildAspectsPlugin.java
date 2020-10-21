@@ -3,6 +3,7 @@
  */
 package be.vbgn.gradle.buildaspects;
 
+import be.vbgn.gradle.buildaspects.internal.PluginManager;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
 import be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension;
@@ -23,9 +24,13 @@ public class BuildAspectsPlugin implements Plugin<Object> {
     private static final String BUILD_VARIANT_EXTENSION = "buildVariant";
     private static final String BUILD_ASPECTS_CONVENTION = "buildAspects-convention";
 
+    private PluginManager<BuildAspects> pluginManager = null;
+
     public void apply(Settings settings) {
+        pluginManager = new PluginManager<>();
         BuildAspects buildAspects = settings.getExtensions()
-                .create(BUILD_ASPECTS_EXTENSION, BuildAspectsRoot.class, settings);
+                .create(BUILD_ASPECTS_EXTENSION, BuildAspectsRoot.class, settings, pluginManager);
+        pluginManager.apply(buildAspects);
         VariantProjectFactory variantProjectFactory = new VariantProjectFactoryImpl(
                 buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
@@ -51,6 +56,14 @@ public class BuildAspectsPlugin implements Plugin<Object> {
             }
 
         });
+    }
+
+    public void applyPlugin(Plugin<BuildAspects> buildAspectsPlugin) {
+        if (pluginManager == null) {
+            throw new IllegalStateException(
+                    "Build aspects plugins can not be applied before the plugin is applied to Settings, or if the plugin is applied to a Project.");
+        }
+        pluginManager.applyPlugin(buildAspectsPlugin);
     }
 
     public void apply(Project project) {

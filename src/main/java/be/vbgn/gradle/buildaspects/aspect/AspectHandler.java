@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 
-public class AspectHandler {
+public abstract class AspectHandler implements ExtensionAware {
 
     private final Set<String> aspectNames = new HashSet<>();
     private final List<Aspect<?>> aspects = new ArrayList<>();

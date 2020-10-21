@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import be.vbgn.gradle.buildaspects.TestUtil;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,7 +14,7 @@ public class AspectHandlerTest {
 
     @Test
     public void createAspects() {
-        AspectHandler handler = new AspectHandler();
+        AspectHandler handler = TestUtil.createAspectHandler();
         Aspect<String> systemVersionAspect = handler.create("systemVersion", String.class, a -> {
         });
         Aspect<Boolean> isCommunityAspect = handler.create("community", Boolean.class, a -> {
@@ -25,7 +26,7 @@ public class AspectHandlerTest {
 
     @Test(expected = DuplicateAspectNameException.class)
     public void createDuplicateAspect() {
-        AspectHandler handler = new AspectHandler();
+        AspectHandler handler = TestUtil.createAspectHandler();
         handler.create("test1", String.class, a -> {
         });
         handler.create("test1", String.class, a -> {
@@ -34,7 +35,7 @@ public class AspectHandlerTest {
 
     @Test
     public void createAspectFiresListener() {
-        AspectHandler handler = new AspectHandler();
+        AspectHandler handler = TestUtil.createAspectHandler();
         AtomicBoolean handlerFired = new AtomicBoolean(false);
 
         handler.aspectAdded(a -> handlerFired.set(true));
@@ -49,7 +50,7 @@ public class AspectHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void modifyAspectAfterCreate() {
-        AspectHandler handler = new AspectHandler();
+        AspectHandler handler = TestUtil.createAspectHandler();
         WritableAspect<String> aspect = (WritableAspect<String>) handler.create("test1", String.class, a -> {
         });
         aspect.add("xyz");
@@ -58,7 +59,7 @@ public class AspectHandlerTest {
     @SuppressWarnings("rawtypes")
     @Test(expected = IllegalArgumentException.class)
     public void createAspectBadType() {
-        AspectHandler handler = new AspectHandler();
+        AspectHandler handler = TestUtil.createAspectHandler();
         handler.create("test1", String.class, a -> {
             WritableAspect<Object> b = (WritableAspect) a;
             b.add(1);

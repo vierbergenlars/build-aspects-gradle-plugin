@@ -1,6 +1,7 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
 import be.vbgn.gradle.buildaspects.aspect.AspectHandler;
+import be.vbgn.gradle.buildaspects.internal.PluginManager;
 import be.vbgn.gradle.buildaspects.settings.project.DuplicateProjectException;
 import be.vbgn.gradle.buildaspects.settings.project.ParentVariantProjectDescriptor;
 import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
@@ -20,27 +21,31 @@ import org.gradle.api.Namer;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 
-public class BuildAspectsRoot implements BuildAspects {
+public abstract class BuildAspectsRoot implements BuildAspects {
 
     private BuildAspects rootBuildAspect = null;
     private final Set<BuildAspects> allBuildAspects = new HashSet<>();
     private final Set<String> registeredProjects = new HashSet<>();
     private final Supplier<BuildAspects> buildAspectsFactory;
+    private final PluginManager<BuildAspects> pluginManager;
 
     @Inject
-    public BuildAspectsRoot(ObjectFactory objectFactory, Settings settings) {
-        this(() -> objectFactory.newInstance(BuildAspectsImpl.class, settings));
+    public BuildAspectsRoot(ObjectFactory objectFactory, Settings settings, PluginManager<BuildAspects> pluginManager) {
+        this(() -> objectFactory.newInstance(BuildAspectsImpl.class, settings), pluginManager);
     }
 
-    BuildAspectsRoot(Supplier<BuildAspects> buildAspectsFactory) {
+    BuildAspectsRoot(Supplier<BuildAspects> buildAspectsFactory, PluginManager<BuildAspects> pluginManager) {
         this.buildAspectsFactory = buildAspectsFactory;
+        this.pluginManager = pluginManager;
     }
 
     private BuildAspects createBuildAspects() {
         if (rootBuildAspect != null) {
             throw IllegalBuildAspectsStateException.nestedAndRootConfiguration();
         }
-        return createBuildAspectsUnchecked();
+        BuildAspects buildAspects = createBuildAspectsUnchecked();
+        pluginManager.apply(buildAspects);
+        return buildAspects;
     }
 
     private BuildAspects createBuildAspectsUnchecked() {
@@ -60,7 +65,7 @@ public class BuildAspectsRoot implements BuildAspects {
             if (!allBuildAspects.isEmpty()) {
                 throw IllegalBuildAspectsStateException.nestedAndRootConfiguration();
             }
-            rootBuildAspect = createBuildAspects();
+            rootBuildAspect = createBuildAspectsUnchecked();
         }
         return rootBuildAspect;
     }
