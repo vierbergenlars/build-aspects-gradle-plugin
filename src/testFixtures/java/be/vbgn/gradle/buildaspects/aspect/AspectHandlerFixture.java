@@ -1,6 +1,6 @@
 package be.vbgn.gradle.buildaspects.aspect;
 
-import be.vbgn.gradle.buildaspects.internal.fixtures.ExtensionContainerFixture;
+import be.vbgn.gradle.buildaspects.fixtures.ExtensionContainerFixture;
 import org.gradle.api.plugins.ExtensionContainer;
 
 public class AspectHandlerFixture extends AspectHandler {

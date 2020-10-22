@@ -19,6 +19,7 @@ public abstract class AspectHandler implements ExtensionAware {
     private final List<Aspect<?>> aspects = new ArrayList<>();
 
     private final EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
+    private final EventDispatcher<Void> calculateAspectDispatcher = new EventDispatcher<>();
     private final EventDispatcher<CalculatedPropertyBuilder<?>> calculatedPropertyBuilderEventDispatcher = new EventDispatcher<>();
 
     @SafeVarargs
@@ -53,6 +54,7 @@ public abstract class AspectHandler implements ExtensionAware {
     }
 
     public Collection<Aspect<?>> getAspects() {
+        calculateAspectDispatcher.fire(null);
         return Collections.unmodifiableList(aspects);
     }
 
@@ -62,5 +64,9 @@ public abstract class AspectHandler implements ExtensionAware {
 
     public void calculatedPropertyAdded(Action<CalculatedPropertyBuilder<?>> listener) {
         calculatedPropertyBuilderEventDispatcher.addListener(listener);
+    }
+
+    public void beforeAspectsCalculated(Action<Void> listener) {
+        calculateAspectDispatcher.addOnceListener(listener);
     }
 }

@@ -5,7 +5,7 @@ package be.vbgn.gradle.buildaspects;
 
 import static org.gradle.internal.impldep.org.junit.Assert.assertEquals;
 
-import be.vbgn.gradle.buildaspects.internal.fixtures.SettingsFixture;
+import be.vbgn.gradle.buildaspects.fixtures.SettingsFixture;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import java.util.Arrays;
 import java.util.HashSet;

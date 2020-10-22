@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.internal.fixtures;
+package be.vbgn.gradle.buildaspects.fixtures;
 
 import java.io.File;
 import java.util.Objects;

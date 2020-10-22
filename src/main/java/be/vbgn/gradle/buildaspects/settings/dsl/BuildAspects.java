@@ -6,6 +6,7 @@ import be.vbgn.gradle.buildaspects.settings.project.ProjectHandler;
 import be.vbgn.gradle.buildaspects.settings.project.VariantProjectDescriptor;
 import groovy.lang.Closure;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import org.gradle.api.Action;
 import org.gradle.api.Namer;
@@ -38,4 +39,20 @@ public interface BuildAspects extends ExtensionAware {
     }
 
     Set<VariantProjectDescriptor> getVariantProjects();
+
+    default void beforeAspectsCalculated(Action<Void> listener) {
+        AtomicBoolean handlerExecuted = new AtomicBoolean(false);
+
+        getAspects().beforeAspectsCalculated((_empty1) -> {
+            if (handlerExecuted.compareAndSet(false, true)) {
+                listener.execute(null);
+            }
+        });
+
+        getProjects().beforeProjectAdded((_empty2) -> {
+            if (handlerExecuted.compareAndSet(false, true)) {
+                listener.execute(null);
+            }
+        });
+    }
 }

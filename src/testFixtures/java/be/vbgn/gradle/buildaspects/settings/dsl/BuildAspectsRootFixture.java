@@ -1,7 +1,7 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
+import be.vbgn.gradle.buildaspects.fixtures.ExtensionContainerFixture;
 import be.vbgn.gradle.buildaspects.internal.PluginManager;
-import be.vbgn.gradle.buildaspects.internal.fixtures.ExtensionContainerFixture;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.plugins.ExtensionContainer;
 

@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.internal.fixtures;
+package be.vbgn.gradle.buildaspects.fixtures;
 
 import groovy.lang.Closure;
 import java.io.File;
