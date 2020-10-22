@@ -16,6 +16,7 @@ public class ProjectHandler {
     private final Settings settings;
     private final Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
     private final EventDispatcher<ProjectDescriptor> projectAddedDispatcher = new EventDispatcher<>();
+    private final EventDispatcher<ProjectDescriptor> beforeProjectAddedDispatcher = new EventDispatcher<>();
 
     @Inject
     public ProjectHandler(Settings settings) {
@@ -31,10 +32,15 @@ public class ProjectHandler {
     }
 
     public void project(ProjectDescriptor projectDescriptor) {
+        beforeProjectAddedDispatcher.fire(projectDescriptor);
         if (!projectDescriptors.add(projectDescriptor)) {
             throw DuplicateProjectException.forProject(projectDescriptor);
         }
         projectAddedDispatcher.fire(projectDescriptor);
+    }
+
+    public void beforeProjectAdded(Action<ProjectDescriptor> eventListener) {
+        beforeProjectAddedDispatcher.addListener(eventListener);
     }
 
     public void projectAdded(Action<ProjectDescriptor> eventListener) {

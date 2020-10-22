@@ -7,11 +7,11 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class BuildAspectsRootTest extends BuildAspectsImplTest {
+public class BuildAspectsRootImplTest extends BuildAspectsImplTest {
 
     @Override
     protected BuildAspects createBuildAspects(Settings settings) {
-        return new BuildAspectsRoot(() -> super.createBuildAspects(settings), new PluginManager()) {
+        return new BuildAspectsRootImpl(() -> super.createBuildAspects(settings), new PluginManager()) {
             @Override
             public ExtensionContainer getExtensions() {
                 return null;
