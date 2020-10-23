@@ -8,7 +8,7 @@ buildscript {
 
 }
 apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
-import be.vbgn.gradle.buildaspects.plugins.CustomAspectObjectPlugin
+import be.vbgn.gradle.buildaspects.plugins.prototype.CustomAspectObjectPluginPrototype
 
 import java.util.function.Consumer
 
@@ -57,8 +57,8 @@ class SystemVersionWithoutDb {
 
 plugins.withId("be.vbgn.build-aspects", { plugin ->
     plugin.applyPlugin(
-            new CustomAspectObjectPlugin(
-                    CustomAspectObjectPlugin.configuration(SystemVersion.class, SystemVersionExt.class)
+            new CustomAspectObjectPluginPrototype(
+                    CustomAspectObjectPluginPrototype.configuration(SystemVersion.class, SystemVersionExt.class)
                             .extensionName("system")
                             .aspectName("systemVersion")
                             .build()

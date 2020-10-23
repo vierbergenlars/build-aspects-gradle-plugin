@@ -1,4 +1,4 @@
-package be.vbgn.gradle.buildaspects.plugins;
+package be.vbgn.gradle.buildaspects.plugins.prototype;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,7 +16,7 @@ import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
 import org.junit.Test;
 
-public class CustomAspectObjectPluginTest {
+public class CustomAspectObjectPluginPrototypeTest {
 
     @Test
     public void testApplyCustomObjectPluginGettingAspects() {
@@ -84,13 +84,14 @@ public class CustomAspectObjectPluginTest {
         versionAction.version("1.2.a").community();
     }
 
-    public static class AlfrescoVersionPlugin extends CustomAspectObjectPlugin<AlfrescoVersion, AlfrescoVersionAction> {
+    public static class AlfrescoVersionPlugin extends
+            CustomAspectObjectPluginPrototype<AlfrescoVersion, AlfrescoVersionAction> {
 
         public AlfrescoVersionPlugin() {
-            super(CustomAspectObjectPlugin
+            super(CustomAspectObjectPluginPrototype
                     .configuration(AlfrescoVersion.class, AlfrescoVersionAction.class)
                     .aspectName("alfresco")
-                    .createCalculatedAspects((aspectHandler, getVersion) -> {
+                    .createCalculatedProperties((aspectHandler, getVersion) -> {
                         aspectHandler.calculated("alfrescoVersion", getVersion.andThen(version -> version.version));
                         aspectHandler.calculated("alfrescoCommunity", getVersion.andThen(version -> version.community));
                     })
