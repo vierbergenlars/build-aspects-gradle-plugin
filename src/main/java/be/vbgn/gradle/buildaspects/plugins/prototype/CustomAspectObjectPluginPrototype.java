@@ -45,45 +45,44 @@ import org.gradle.api.Plugin;
  * }
  * </pre>
  *
- * @param <Aspect>    Type of the aspect that will be added. Can be an arbitrary object with properties, or a primitive.
- * @param <Extension> Type of the extension that will be added to `buildAspects {}`
+ * @param <A> Type of the aspect that will be added. Can be an arbitrary object with properties, or a primitive.
+ * @param <E> Type of the extension that will be added to `buildAspects {}`
  */
-public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plugin<BuildAspects> {
+public class CustomAspectObjectPluginPrototype<A, E> implements Plugin<BuildAspects> {
 
     @FunctionalInterface
-    public interface CreateCalculatedProperties<Aspect> extends BiConsumer<AspectHandler, Function<Variant, Aspect>> {
+    public interface CreateCalculatedProperties<A> extends BiConsumer<AspectHandler, Function<Variant, A>> {
 
     }
 
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Getter(AccessLevel.PRIVATE)
-    public static final class Configuration<Aspect, Extension> {
+    public static final class Configuration<A, E> {
 
-        private final Class<Aspect> aspectType;
-        private final Class<Extension> extensionType;
+        private final Class<A> aspectType;
+        private final Class<E> extensionType;
         private final String extensionName;
         private final String aspectName;
-        private final CreateCalculatedProperties<Aspect> createCalculatedProperties;
+        private final CreateCalculatedProperties<A> createCalculatedProperties;
 
         private void createCalculatedProperties(AspectHandler aspectHandler) {
             createCalculatedProperties.accept(aspectHandler, variant -> variant.getProperty(aspectName, aspectType));
         }
 
-        private static <Aspect, Extension> ConfigurationBuilder<Aspect, Extension> builder(Class<Aspect> aspectType,
-                Class<Extension> extensionType) {
-            return new ConfigurationBuilder<Aspect, Extension>(aspectType, extensionType);
+        private static <A, E> ConfigurationBuilder<A, E> builder(Class<A> aspectType, Class<E> extensionType) {
+            return new ConfigurationBuilder<>(aspectType, extensionType);
         }
 
-        public static final class ConfigurationBuilder<Aspect, Extension> {
+        public static final class ConfigurationBuilder<A, E> {
 
-            private final Class<Aspect> aspectType;
-            private final Class<Extension> extensionType;
+            private final Class<A> aspectType;
+            private final Class<E> extensionType;
             private String extensionName;
             private String aspectName;
-            private CreateCalculatedProperties<Aspect> createCalculatedProperties = (_aspectHandler, _getVariant) -> {
+            private CreateCalculatedProperties<A> createCalculatedProperties = (_aspectHandler, _getVariant) -> {
             };
 
-            private ConfigurationBuilder(Class<Aspect> aspectType, Class<Extension> extensionType) {
+            private ConfigurationBuilder(Class<A> aspectType, Class<E> extensionType) {
                 this.aspectType = aspectType;
                 this.extensionType = extensionType;
                 this.extensionName = extensionType.getSimpleName();
@@ -95,7 +94,7 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * @param extensionName A custom name for the extension block
              * @return itself, for chaining
              */
-            public ConfigurationBuilder<Aspect, Extension> extensionName(String extensionName) {
+            public ConfigurationBuilder<A, E> extensionName(String extensionName) {
                 this.extensionName = extensionName;
                 return this;
             }
@@ -106,7 +105,7 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * @param aspectName A custom name for the aspect that is added
              * @return itself, for chaining
              */
-            public ConfigurationBuilder<Aspect, Extension> aspectName(String aspectName) {
+            public ConfigurationBuilder<A, E> aspectName(String aspectName) {
                 this.aspectName = aspectName;
                 return this;
             }
@@ -127,36 +126,35 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * @param createCalculatedProperties Factory method to create calculated properties
              * @return itself, for chaining
              */
-            public ConfigurationBuilder<Aspect, Extension> createCalculatedProperties(
-                    CreateCalculatedProperties<Aspect> createCalculatedProperties) {
+            public ConfigurationBuilder<A, E> createCalculatedProperties(
+                    CreateCalculatedProperties<A> createCalculatedProperties) {
                 this.createCalculatedProperties = createCalculatedProperties;
                 return this;
             }
 
-            public Configuration<Aspect, Extension> build() {
-                String aspectName = this.aspectName == null ? this.extensionName : this.aspectName;
-                return new Configuration<Aspect, Extension>(aspectType, extensionType, extensionName, aspectName,
+            public Configuration<A, E> build() {
+                String newAspectName = this.aspectName == null ? this.extensionName : this.aspectName;
+                return new Configuration<>(aspectType, extensionType, extensionName, newAspectName,
                         createCalculatedProperties);
             }
 
         }
     }
 
-    private final Configuration<Aspect, Extension> configuration;
+    private final Configuration<A, E> configuration;
 
-    public CustomAspectObjectPluginPrototype(Configuration<Aspect, Extension> configuration) {
+    public CustomAspectObjectPluginPrototype(Configuration<A, E> configuration) {
         this.configuration = configuration;
     }
 
     @Override
     public void apply(BuildAspects buildAspects) {
-        List<Aspect> customObjects = new ArrayList<>();
-        EventDispatcher<Aspect> addCustomObjectDispatcher = new EventDispatcher<Aspect>();
+        List<A> customObjects = new ArrayList<>();
+        EventDispatcher<A> addCustomObjectDispatcher = new EventDispatcher<>();
         addCustomObjectDispatcher.addListener(customObjects::add);
 
-        buildAspects.getExtensions()
-                .create(configuration.getExtensionName(), configuration.getExtensionType(),
-                        (Consumer<Aspect>) addCustomObjectDispatcher::fire);
+        buildAspects.getExtensions().create(configuration.getExtensionName(), configuration.getExtensionType(),
+                (Consumer<A>) addCustomObjectDispatcher::fire);
         buildAspects.beforeAspectsCalculated(_empty -> {
             buildAspects.getAspects()
                     .create(configuration.getAspectName(), configuration.getAspectType(), customObjects);
@@ -172,13 +170,12 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
      *
      * @param aspectType    The type of the aspect that will be added to BuildAspects.aspects
      * @param extensionType The type of the extension that will be added to BuildAspects
-     * @param <Aspect>      The type of the aspect that will be added to BuildAspects.aspects
-     * @param <Extension>   The type of the extension that will be added to BuildAspects
+     * @param <A>           The type of the aspect that will be added to BuildAspects.aspects
+     * @param <E>           The type of the extension that will be added to BuildAspects
      * @return Configuration builder for this plugin
      */
-    public static <Aspect, Extension> Configuration.ConfigurationBuilder<Aspect, Extension> configuration(
-            Class<Aspect> aspectType,
-            Class<Extension> extensionType) {
+    public static <A, E> Configuration.ConfigurationBuilder<A, E> configuration(Class<A> aspectType,
+            Class<E> extensionType) {
         return Configuration.builder(aspectType, extensionType);
     }
 
