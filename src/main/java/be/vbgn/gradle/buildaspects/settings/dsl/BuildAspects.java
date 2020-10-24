@@ -43,13 +43,13 @@ public interface BuildAspects extends ExtensionAware {
     default void beforeAspectsCalculated(Action<Void> listener) {
         AtomicBoolean handlerExecuted = new AtomicBoolean(false);
 
-        getAspects().beforeAspectsCalculated((_empty1) -> {
+        getAspects().beforeAspectsCalculated(unused -> {
             if (handlerExecuted.compareAndSet(false, true)) {
                 listener.execute(null);
             }
         });
 
-        getProjects().beforeProjectAdded((_empty2) -> {
+        getProjects().beforeProjectAdded(unused -> {
             if (handlerExecuted.compareAndSet(false, true)) {
                 listener.execute(null);
             }

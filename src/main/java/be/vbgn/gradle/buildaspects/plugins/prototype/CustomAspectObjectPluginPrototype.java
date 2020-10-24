@@ -79,7 +79,7 @@ public class CustomAspectObjectPluginPrototype<A, E> implements Plugin<BuildAspe
             private final Class<E> extensionType;
             private String extensionName;
             private String aspectName;
-            private CreateCalculatedProperties<A> createCalculatedProperties = (_aspectHandler, _getVariant) -> {
+            private CreateCalculatedProperties<A> createCalculatedProperties = (aspectHandler, getVariant) -> {
             };
 
             private ConfigurationBuilder(Class<A> aspectType, Class<E> extensionType) {
@@ -155,11 +155,11 @@ public class CustomAspectObjectPluginPrototype<A, E> implements Plugin<BuildAspe
 
         buildAspects.getExtensions().create(configuration.getExtensionName(), configuration.getExtensionType(),
                 (Consumer<A>) addCustomObjectDispatcher::fire);
-        buildAspects.beforeAspectsCalculated(_empty -> {
+        buildAspects.beforeAspectsCalculated(unused -> {
             buildAspects.getAspects()
                     .create(configuration.getAspectName(), configuration.getAspectType(), customObjects);
             configuration.createCalculatedProperties(buildAspects.getAspects());
-            addCustomObjectDispatcher.addListener(_version -> {
+            addCustomObjectDispatcher.addListener(unused2 -> {
                 throw IllegalBuildAspectsStateException.modifyAfterProjectsAdded(configuration.getExtensionName());
             });
         });

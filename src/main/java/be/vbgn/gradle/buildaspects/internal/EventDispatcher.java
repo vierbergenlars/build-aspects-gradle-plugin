@@ -13,15 +13,9 @@ public class EventDispatcher<T> {
         eventListeners.add(listener);
     }
 
-    public void removeListener(Action<T> listener) {
-        eventListeners.remove(listener);
-        onceListeners.remove(listener);
-    }
-
     public void addOnceListener(Action<T> listener) {
         addListener(listener);
         onceListeners.add(listener);
-
     }
 
     public void fire(T context) {

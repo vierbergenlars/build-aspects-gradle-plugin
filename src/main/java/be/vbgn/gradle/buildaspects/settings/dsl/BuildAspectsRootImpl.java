@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -100,11 +101,11 @@ public abstract class BuildAspectsRootImpl implements BuildAspectsRoot {
         return Collections.unmodifiableSet(new LazyVariantProjectSet(allBuildAspects));
     }
 
-    private static class LazyVariantProjectSet extends AbstractSet<VariantProjectDescriptor> {
+    private static final class LazyVariantProjectSet extends AbstractSet<VariantProjectDescriptor> {
 
         private final Set<? extends BuildAspects> buildAspects;
 
-        public LazyVariantProjectSet(Set<? extends BuildAspects> buildAspects) {
+        private LazyVariantProjectSet(Set<? extends BuildAspects> buildAspects) {
             this.buildAspects = buildAspects;
         }
 
@@ -122,6 +123,26 @@ public abstract class BuildAspectsRootImpl implements BuildAspectsRoot {
         @Override
         public int size() {
             return (int) createProjectDescriptorStream().count();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+            LazyVariantProjectSet that = (LazyVariantProjectSet) o;
+            return buildAspects.equals(that.buildAspects);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), buildAspects);
         }
     }
 }
