@@ -93,6 +93,7 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * Configures the name of the extension block that is added to `buildAspects {}`. Defaults to the simple classname of the extension type.
              *
              * @param extensionName A custom name for the extension block
+             * @return itself, for chaining
              */
             public ConfigurationBuilder<Aspect, Extension> extensionName(String extensionName) {
                 this.extensionName = extensionName;
@@ -103,6 +104,7 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * Configures the name of the aspect that is added. Defaults to the extension name.
              *
              * @param aspectName A custom name for the aspect that is added
+             * @return itself, for chaining
              */
             public ConfigurationBuilder<Aspect, Extension> aspectName(String aspectName) {
                 this.aspectName = aspectName;
@@ -114,13 +116,16 @@ public class CustomAspectObjectPluginPrototype<Aspect, Extension> implements Plu
              * <p>
              * For example:
              * <pre>
-             *    createCalculatedProperties((aspectHandler, getVariant) -> {
+             *    createCalculatedProperties((aspectHandler, getVariant) -&gt; {
              *        aspectHandler.calculated("systemVersion", getVariant.andThen(SystemVersion::getVersion))
              *        aspectHandler.calculated("dbVersion", getVariant.andThen(SystemVersion::getDatabaseVersion))
              *    });
              * </pre>
              * <p>
              * Adds two calculated aspects, based on the "system" aspect of type SystemVersion that was created earlier.
+             *
+             * @param createCalculatedProperties Factory method to create calculated properties
+             * @return itself, for chaining
              */
             public ConfigurationBuilder<Aspect, Extension> createCalculatedProperties(
                     CreateCalculatedProperties<Aspect> createCalculatedProperties) {
