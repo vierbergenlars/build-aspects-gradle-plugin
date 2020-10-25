@@ -3,6 +3,8 @@
  */
 package be.vbgn.gradle.buildaspects;
 
+import be.vbgn.gradle.buildaspects.internal.PluginManager;
+import be.vbgn.gradle.buildaspects.plugins.PluginAware;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsLeaf;
 import be.vbgn.gradle.buildaspects.project.dsl.BuildAspectsParent;
 import be.vbgn.gradle.buildaspects.project.dsl.ProjectExtension;
@@ -11,21 +13,27 @@ import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactory;
 import be.vbgn.gradle.buildaspects.project.project.VariantProjectFactoryImpl;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
 import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRoot;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspectsRootImpl;
 import be.vbgn.gradle.buildaspects.variant.GroovyBuildVariant;
 import java.util.Set;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 
-public class BuildAspectsPlugin implements Plugin<Object> {
+public class BuildAspectsPlugin implements Plugin<Object>, PluginAware<BuildAspects> {
 
     private static final String BUILD_ASPECTS_EXTENSION = "buildAspects";
     private static final String BUILD_VARIANT_EXTENSION = "buildVariant";
     private static final String BUILD_ASPECTS_CONVENTION = "buildAspects-convention";
 
+    private PluginManager<BuildAspects> pluginManager = null;
+
     public void apply(Settings settings) {
-        BuildAspects buildAspects = settings.getExtensions()
-                .create(BUILD_ASPECTS_EXTENSION, BuildAspectsRoot.class, settings);
+        pluginManager = new PluginManager<>();
+        BuildAspectsRoot buildAspects = settings.getExtensions()
+                .create(BuildAspectsRoot.class, BUILD_ASPECTS_EXTENSION, BuildAspectsRootImpl.class, settings,
+                        pluginManager);
+        pluginManager.apply(buildAspects);
         VariantProjectFactory variantProjectFactory = new VariantProjectFactoryImpl(
                 buildAspects.getVariantProjects());
         settings.getGradle().allprojects(project -> {
@@ -51,6 +59,22 @@ public class BuildAspectsPlugin implements Plugin<Object> {
             }
 
         });
+    }
+
+    public void applyPlugin(Plugin<BuildAspects> buildAspectsPlugin) {
+        if (pluginManager == null) {
+            throw new IllegalStateException(
+                    "Build aspects plugins can not be applied before the plugin is applied to Settings, or if the plugin is applied to a Project.");
+        }
+        pluginManager.applyPlugin(buildAspectsPlugin);
+    }
+
+    public <T extends Plugin<BuildAspects>> T applyPlugin(Class<T> buildAspectsPlugin) {
+        if (pluginManager == null) {
+            throw new IllegalStateException(
+                    "Build aspects plugins can not be applied before the plugin is applied to Settings, or if the plugin is applied to a Project.");
+        }
+        return pluginManager.applyPlugin(buildAspectsPlugin);
     }
 
     public void apply(Project project) {

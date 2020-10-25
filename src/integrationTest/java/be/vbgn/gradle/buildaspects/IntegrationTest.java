@@ -123,6 +123,26 @@ public class IntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    public void customAspectObject() throws IOException {
+        BuildResult buildResult = createGradleRunner(integrationTests.resolve("customAspectObject"))
+                .withArguments("clean", "--stacktrace")
+                .build();
+
+        Set<String> projectPaths = buildResult.getTasks()
+                .stream()
+                .map(BuildTask::getPath)
+                .map(s -> s.substring(0, s.indexOf(":clean")))
+                .collect(Collectors.toSet());
+
+        assertEquals(new HashSet<>(Arrays.asList(
+                "",
+                ":customAspectObject-systemVersion-1.0-1.2",
+                ":customAspectObject-systemVersion-1.0-1.3",
+                ":customAspectObject-systemVersion-2.0-1.3"
+        )), projectPaths);
+    }
+
+    @Test
     public void projectNamer() throws IOException {
         BuildResult buildResult = createGradleRunner(integrationTests.resolve("projectNamer"))
                 .withArguments("clean")

@@ -723,3 +723,153 @@ buildAspects.subprojects {
 ```
 
 </details>
+
+## Developing extensions
+
+The build aspects `Settings` plugin supports a plugin architecture that allows extensions to be made on the `BuildAspects` configuration with an additional Gradle plugin.
+
+<details>
+<summary>
+Creating an extension
+</summary>
+
+```java
+import org.gradle.api.Plugin;
+import org.gradle.api.initialization.Settings;
+import be.vbgn.gradle.buildaspects.BuildAspectsPlugin;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
+
+class BuildAspectsExtensionGradlePlugin implements Plugin<Settings> {
+    public void apply(Settings settings) {
+        BuildAspectsPlugin buildAspectsPlugin = settings.getPlugins().apply(BuildAspectsPlugin.class);
+        buildAspectsPlugin.applyPlugin(BuildAspectsExtensionPlugin.class);
+    }
+}
+
+class BuildAspectsExtensionPlugin implements Plugin<BuildAspects> {
+   public void apply(BuildAspects buildAspects) {
+       // Do your configuration here...
+   }
+}
+```
+
+</details>
+
+### Built-in plugin prototypes
+
+The extension contains some plugin prototypes that you build your own plugin on top of.
+
+These plugin prototypes should abstract the more complex implementation details of creating a plugin for BuildAspects.
+
+#### `CustomAspectObjectPluginPrototype`
+
+This plugin prototype adds an extension to `buildAspects { }` (or `buildAspects.nested { }`) to allow a more fluent configuration style
+for aspects that have custom objects.
+
+Typically, the configuration and application of this prototype plugin is done in a separate Gradle plugin.
+This Gradle plugin is then published separately and used in multiple projects that need the same custom aspect.
+
+
+<details>
+<summary>
+Creating an extension
+</summary>
+
+You can simplify defining your aspects from:
+
+```groovy
+buildAspects {
+    aspects {
+        create("system", new SystemVersion("1.2", "1.2"), new SystemVersion("1.2", "2.0"))
+        calculated("systemVersion", { a -> a.getProperty("system").systemVersion })
+        calculated("dbVersion", { a -> a.getProperty("system").databaseVersion })
+    }
+}
+```
+
+to:
+
+```groovy
+buildAspects {
+    system {
+        version "1.3" withDatabase "1.2"
+        version "1.2" withDatabase "2.0"
+    }
+}
+```
+
+with a reasonably simple plugin:
+
+```java
+import org.gradle.api.Plugin;
+import org.gradle.api.initialization.Settings;
+import be.vbgn.gradle.buildaspects.BuildAspectsPlugin;
+import be.vbgn.gradle.buildaspects.settings.dsl.BuildAspects;
+import be.vbgn.gradle.buildaspects.plugins.prototype.CustomAspectObjectPluginPrototype;
+
+class SystemVersion {
+    public final String systemVersion;
+    public final String databaseVersion;
+
+    SystemVersion(String systemVersion, String databaseVersion) {
+        this.systemVersion = systemVersion;
+        this.databaseVersion = databaseVersion;
+    }
+    
+    public String getSystemVersion() {
+        return systemVersion;
+    }
+
+    public String getDatabaseVersion() {
+        return databaseVersion;
+    }
+
+    public String toString() {
+        return this.systemVersion + "-" + this.databaseVersion;
+    }
+}
+
+class SystemVersionExt {
+    private final Consumer<SystemVersion> addVersion;
+
+    SystemVersionExt(Consumer<SystemVersion> addVersion) {
+        this.addVersion = addVersion;
+    }
+
+    public SystemVersionWithoutDb version(String systemVersion) {
+        return new SystemVersionWithoutDb(systemVersion, addVersion);
+    }
+}
+
+class SystemVersionWithoutDb {
+    private final String systemVersion;
+    private final Consumer<SystemVersion> addVersion;
+
+    SystemVersionWithoutDb(String systemVersion, Consumer<SystemVersion> addVersion) {
+        this.systemVersion = systemVersion;
+        this.addVersion = addVersion;
+    }
+
+    public void withDatabase(String dbVersion) {
+        addVersion.accept(new SystemVersion(systemVersion, dbVersion));
+    }
+}
+
+
+class BuildAspectsSystemVersionGradlePlugin implements Plugin<Settings> {
+    public void apply(Settings settings) {
+        BuildAspectsPlugin buildAspectsPlugin = settings.getPlugins().apply(BuildAspectsPlugin.class);
+        buildAspectsPlugin.applyPlugin(new CustomAspectObjectPluginPrototype(
+                CustomAspectObjectPluginPrototype.configuration(SystemVersion.class, SystemVersionExt.class)
+                        .extensionName("system")
+                        .createCalculatedProperties((aspectHandler, getSystemVersion) -> {
+                            aspectHandler.calculated("systemVersion", getSystemVersion.andThen(SystemVersion::getSystemVersion));
+                            aspectHandler.calculated("dbVersion", getSystemVersion.andThen(SystemVersion::getDatabaseVersion));
+                        })
+                        .build()
+        ));
+    }
+}
+```
+
+</details>

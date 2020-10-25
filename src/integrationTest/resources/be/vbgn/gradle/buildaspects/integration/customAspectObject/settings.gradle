@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath "be.vbgn.gradle:build-aspects-plugin:${System.getProperty("pluginVersion")}"
+    }
+
+}
+apply plugin: be.vbgn.gradle.buildaspects.BuildAspectsPlugin
+import be.vbgn.gradle.buildaspects.plugins.prototype.CustomAspectObjectPluginPrototype
+
+import java.util.function.Consumer
+
+rootProject.name = 'customAspectObject'
+
+class SystemVersion {
+    final String systemVersion
+    final String databaseVersion
+
+    SystemVersion(String systemVersion, String databaseVersion) {
+        this.systemVersion = systemVersion
+        this.databaseVersion = databaseVersion
+    }
+
+    String toString() {
+        return this.systemVersion + "-" + this.databaseVersion;
+    }
+}
+
+class SystemVersionExt {
+    Consumer<SystemVersion> addVersion
+
+    SystemVersionExt(Consumer<SystemVersion> addVersion) {
+        this.addVersion = addVersion;
+    }
+
+    SystemVersionWithoutDb version(String systemVersion) {
+        return new SystemVersionWithoutDb(systemVersion, addVersion)
+    }
+}
+
+class SystemVersionWithoutDb {
+    final String systemVersion
+    Consumer<SystemVersion> addVersion
+
+    SystemVersionWithoutDb(String systemVersion, Consumer<SystemVersion> addVersion) {
+        this.systemVersion = systemVersion;
+        this.addVersion = addVersion;
+    }
+
+    void withDatabase(String dbVersion) {
+        addVersion.accept(new SystemVersion(systemVersion, dbVersion))
+    }
+}
+
+
+plugins.withId("be.vbgn.build-aspects", { plugin ->
+    plugin.applyPlugin(
+            new CustomAspectObjectPluginPrototype(
+                    CustomAspectObjectPluginPrototype.configuration(SystemVersion.class, SystemVersionExt.class)
+                            .extensionName("system")
+                            .aspectName("systemVersion")
+                            .build()
+            )
+    );
+});
+
+buildAspects {
+    system {
+        version("1.0").withDatabase("1.2")
+        version("1.0").withDatabase("1.3")
+        version("2.0").withDatabase("1.3")
+    }
+    projects {
+        project(':')
+    }
+}

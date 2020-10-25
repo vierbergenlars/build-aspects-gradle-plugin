@@ -1,15 +1,22 @@
 package be.vbgn.gradle.buildaspects.settings.dsl;
 
+import be.vbgn.gradle.buildaspects.internal.PluginManager;
 import be.vbgn.gradle.buildaspects.settings.project.DuplicateProjectException;
 import org.gradle.api.initialization.Settings;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class BuildAspectsRootTest extends BuildAspectsImplTest {
+public class BuildAspectsRootImplTest extends BuildAspectsImplTest {
 
     @Override
     protected BuildAspects createBuildAspects(Settings settings) {
-        return new BuildAspectsRoot(() -> super.createBuildAspects(settings));
+        return new BuildAspectsRootImpl(() -> super.createBuildAspects(settings), new PluginManager()) {
+            @Override
+            public ExtensionContainer getExtensions() {
+                return null;
+            }
+        };
     }
 
     @Test

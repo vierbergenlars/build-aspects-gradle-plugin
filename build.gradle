@@ -1,10 +1,12 @@
 plugins {
     id 'java-gradle-plugin'
+    id 'java-test-fixtures'
     id 'jacoco'
     id 'maven-publish'
     id 'org.ajoberstar.reckon' version '0.13.0'
     id 'org.sonarqube' version '3.0'
     id "com.gradle.plugin-publish" version "0.12.0"
+    id 'be.vbgn.ci-detect' version '0.4.0'
 }
 
 group 'be.vbgn.gradle'
@@ -18,7 +20,7 @@ sourceSets {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 configurations {
@@ -26,8 +28,12 @@ configurations {
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:3.5.15'
+    testFixturesImplementation 'org.mockito:mockito-core:3.5.15'
     integrationTestImplementation 'commons-io:commons-io:2.8.0'
 }
 
@@ -70,12 +76,29 @@ task integrationTest(type: Test, group: 'verification') {
 }
 
 integrationTest.shouldRunAfter(test)
-check.dependsOn(integrationTest)
+check.dependsOn(integrationTest, jacocoTestReport)
 tasks.sonarqube.dependsOn(check)
+
+jacocoTestReport {
+    dependsOn(test)
+    reports {
+        html.enabled = !ci.isCi()
+        xml.enabled = true
+    }
+}
 
 sonarqube {
     properties {
         properties["sonar.tests"] += sourceSets.integrationTest.allSource.srcDirs
+        if (ci.isCi()) {
+            if (ci.isPullRequest()) {
+                property "sonar.pullrequest.branch", ci.branch
+                property "sonar.pullrequest.key", ci.pullRequest
+                property "sonar.pullrequest.base", ci.pullRequestTargetBranch
+            } else {
+                property "sonar.branch.name", ci.branch
+            }
+        }
     }
 }
 

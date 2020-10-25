@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import org.gradle.api.Action;
+import org.gradle.api.plugins.ExtensionAware;
 
-public class AspectHandler {
+public abstract class AspectHandler implements ExtensionAware {
 
     private final Set<String> aspectNames = new HashSet<>();
     private final List<Aspect<?>> aspects = new ArrayList<>();
 
     private final EventDispatcher<Aspect<?>> addAspectDispatcher = new EventDispatcher<>();
+    private final EventDispatcher<Void> calculateAspectDispatcher = new EventDispatcher<>();
     private final EventDispatcher<CalculatedPropertyBuilder<?>> calculatedPropertyBuilderEventDispatcher = new EventDispatcher<>();
 
     @SafeVarargs
@@ -52,6 +54,7 @@ public class AspectHandler {
     }
 
     public Collection<Aspect<?>> getAspects() {
+        calculateAspectDispatcher.fire(null);
         return Collections.unmodifiableList(aspects);
     }
 
@@ -61,5 +64,9 @@ public class AspectHandler {
 
     public void calculatedPropertyAdded(Action<CalculatedPropertyBuilder<?>> listener) {
         calculatedPropertyBuilderEventDispatcher.addListener(listener);
+    }
+
+    public void beforeAspectsCalculated(Action<Void> listener) {
+        calculateAspectDispatcher.addOnceListener(listener);
     }
 }

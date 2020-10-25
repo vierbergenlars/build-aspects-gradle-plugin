@@ -19,7 +19,7 @@ import org.gradle.api.Namer;
 import org.gradle.api.initialization.Settings;
 import org.gradle.api.model.ObjectFactory;
 
-public class BuildAspectsImpl implements BuildAspects {
+public abstract class BuildAspectsImpl implements BuildAspects {
 
     private final AspectHandler aspectHandler;
     private final ProjectHandler projectHandler;

@@ -23,9 +23,9 @@ public final class IllegalBuildAspectsStateException extends IllegalStateExcepti
         return modifyAfterProjectsAdded("exclude");
     }
 
-    private static IllegalBuildAspectsStateException modifyAfterProjectsAdded(String property) {
+    public static IllegalBuildAspectsStateException modifyAfterProjectsAdded(String property) {
         return new IllegalBuildAspectsStateException(
-                "You can not modify \""+property+"\" after projects have been registered.");
+                "You can not modify \"" + property + "\" after projects have been registered.");
 
     }
 }
