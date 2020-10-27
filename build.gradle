@@ -7,24 +7,16 @@ plugins {
     id 'org.sonarqube' version '3.0'
     id "com.gradle.plugin-publish" version "0.12.0"
     id 'be.vbgn.ci-detect' version '0.5.0'
+    id 'be.vbgn.dev-conventions.opinion' version '0.2.0'
+    id 'nebula.integtest' version '7.0.9'
 }
 
 group 'be.vbgn.gradle'
 
 sourceCompatibility = 1.8
 
-sourceSets {
-    integrationTest {
-
-    }
-}
-
 repositories {
     mavenCentral()
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom(testImplementation)
 }
 
 dependencies {
@@ -34,7 +26,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:3.5.15'
     testFixturesImplementation 'org.mockito:mockito-core:3.5.15'
-    integrationTestImplementation 'commons-io:commons-io:2.8.0'
+    integTestImplementation 'commons-io:commons-io:2.8.0'
 }
 
 gradlePlugin {
@@ -44,7 +36,7 @@ gradlePlugin {
             implementationClass = 'be.vbgn.gradle.buildaspects.BuildAspectsPlugin'
         }
     }
-    testSourceSets(sourceSets.integrationTest)
+    testSourceSets(sourceSets.integTest)
 }
 
 pluginBundle {
@@ -62,9 +54,7 @@ pluginBundle {
 
 import org.gradle.util.GradleVersion
 
-task integrationTest(type: Test, group: 'verification') {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
+integrationTest {
     dependsOn(publishToMavenLocal)
     doFirst {
         systemProperty "pluginVersion", project.version
@@ -76,36 +66,9 @@ task integrationTest(type: Test, group: 'verification') {
 }
 
 integrationTest.shouldRunAfter(test)
-check.dependsOn(integrationTest, jacocoTestReport)
-tasks.sonarqube.dependsOn(check)
-
-jacocoTestReport {
-    dependsOn(test)
-    reports {
-        html.enabled = !ci.isCi()
-        xml.enabled = true
-    }
-}
 
 sonarqube {
     properties {
-        properties["sonar.tests"] += sourceSets.integrationTest.allSource.srcDirs
-        if (ci.isCi()) {
-            if (ci.isPullRequest()) {
-                property "sonar.pullrequest.branch", ci.branch
-                property "sonar.pullrequest.key", ci.pullRequest
-                property "sonar.pullrequest.base", ci.pullRequestTargetBranch
-            } else {
-                property "sonar.branch.name", ci.branch
-            }
-        }
+        properties["sonar.tests"] += sourceSets.integTest.allSource.srcDirs
     }
 }
-
-
-reckon {
-    scopeFromProp()
-    snapshotFromProp()
-}
-
-reckonTagCreate.dependsOn(check)
