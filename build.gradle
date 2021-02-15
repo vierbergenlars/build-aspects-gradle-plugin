@@ -23,7 +23,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.18'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.7.7'
     testFixturesImplementation 'org.mockito:mockito-core:3.7.7'
     integTestImplementation 'commons-io:commons-io:2.8.0'
